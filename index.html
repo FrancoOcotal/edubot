@@ -1,0 +1,36 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Recognition App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/artyom.js/1.1.1/artyom.min.js"></script>
+</head>
+<body>
+    <h1>Voice Recognition App</h1>
+    <p>Try saying "Hello" or "How are you?"</p>
+
+    <script>
+        // Initialize Artyom
+        var artyom = new Artyom();
+
+        // Add commands
+        artyom.addCommands([
+            {
+                indexes: ["hello", "hi"],
+                action: function () {
+                    alert("Hello there!");
+                }
+            },
+            {
+                indexes: ["how are you", "what's up"],
+                action: function () {
+                    alert("I'm fine, thank you!");
+                }
+            }
+        ]);
+
+        // Start Artyom
+        artyom.start();
+    </script>
+</body>
+</html>
