@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Recognition App</title>
+    <title>Bot</title>
     <script src="artyom.window.min.js"></script>
 </head>
 <body>
@@ -11,27 +11,30 @@
     <p>Try saying "Hello" or "How are you?"</p>
 
     <script>
-        // Initialize Artyom
+        // Ensure the Artyom object is properly instantiated
         var artyom = new Artyom();
 
-        // Add commands
-        artyom.addCommands([
-            {
-                indexes: ["hello", "hi"],
-                action: function () {
-                    alert("Hello there!");
+        // Wait for the Artyom instance to be ready
+        artyom.when("READY", function () {
+            // Add commands
+            artyom.addCommands([
+                {
+                    indexes: ["hello", "hi"],
+                    action: function () {
+                        alert("Hello there!");
+                    }
+                },
+                {
+                    indexes: ["how are you", "what's up"],
+                    action: function () {
+                        alert("I'm fine, thank you!");
+                    }
                 }
-            },
-            {
-                indexes: ["how are you", "what's up"],
-                action: function () {
-                    alert("I'm fine, thank you!");
-                }
-            }
-        ]);
+            ]);
 
-        // Start Artyom
-        artyom.start();
+            // Start Artyom after adding commands
+            artyom.start();
+        });
     </script>
 </body>
 </html>
