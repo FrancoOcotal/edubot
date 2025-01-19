@@ -41,18 +41,18 @@ function renderPosts(posts) {
 
         postElement.innerHTML = `
             <div class="flex justify-between items-center">
-                <h3 class="text-lg font-semibold"><i class="fas fa-user-circle mr-2"></i>Autor desconocido</h3>
-                <span class="text-gray-500 text-sm"><i class="fas fa-clock mr-1"></i>${new Date(createdAt).toLocaleString()}</span>
+                <h3 class="text-lg font-semibold"><span class="material-icons mr-2">account_circle</span>Autor desconocido</h3>
+                <span class="text-gray-500 text-sm"><span class="material-icons mr-1">schedule</span>${new Date(createdAt).toLocaleString()}</span>
             </div>
             <p class="mt-2 text-gray-700">${content}</p>
-            ${link ? `<a href="${link}" class="text-blue-600 hover:underline"><i class="fas fa-link mr-1"></i>Enlace</a>` : ""}
-            <p class="text-sm text-gray-500 mt-1">Categoría: <a href="#" class="category-link text-blue-600 hover:underline" data-category="${category}">${category}</a></p>
+            ${link ? `<a href="${link}" class="text-blue-600 hover:underline"><span class="material-icons mr-1">link</span>Enlace</a>` : ""}
+            <p class="text-sm text-gray-500 mt-1">Categoría: <span class="text-blue-600">${category}</span></p>
             <div class="flex space-x-4 mt-4">
                 <button class="flex items-center text-gray-600 hover:text-blue-600">
-                    <i class="fas fa-thumbs-up mr-2"></i>Me gusta
+                    <span class="material-icons mr-2">thumb_up</span>Me gusta
                 </button>
                 <button class="flex items-center text-gray-600 hover:text-blue-600">
-                    <i class="fas fa-comment-alt mr-2"></i>Comentar
+                    <span class="material-icons mr-2">comment</span>Comentar
                 </button>
             </div>
         `;
