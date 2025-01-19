@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Social para Docentes</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/parse/3.4.4/parse.min.js"></script>
+	<script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="js/parserConfig.js"></script>
+    <script src="js/loadPosts.js"></script>
+    <script src="js/category_filter.js"></script>
+</head>
+<body class="bg-blue-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-blue-600 text-white py-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <h1 class="text-2xl font-bold"><span class="material-icons mr-2">school</span>Red Social para Docentes</h1>
+            <nav>
+                <ul class="flex space-x-4">
+                    <li><a href="#" class="hover:underline"><span class="material-icons mr-1">home</span>Inicio</a></li>
+                    <li><a href="#" class="hover:underline"><span class="material-icons mr-1">person</span>Mi Perfil</a></li>
+                    <li><a href="#" class="hover:underline"><span class="material-icons mr-1">logout</span>Cerrar Sesión</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Menu -->
+    <nav class="bg-blue-100 py-4 shadow-md">
+        <div class="container mx-auto px-4">
+            <ul class="flex justify-around">
+                <li><a href="#" data-category="#Planes" class="text-blue-600 hover:text-blue-800"><span class="material-icons mr-2">menu_book</span>Planes de Clases</a></li>
+                <li><a href="#" data-category="#Hojas" class="text-blue-600 hover:text-blue-800"><span class="material-icons mr-2">assignment</span>Hojas de Trabajo</a></li>
+                <li><a href="#" data-category="#Instrumentos" class="text-blue-600 hover:text-blue-800"><span class="material-icons mr-2">checklist</span>Instrumentos de Evaluación</a></li>
+                <li><a href="#" data-category="#Noticias" class="text-blue-600 hover:text-blue-800"><span class="material-icons mr-2">newspaper</span>Noticias</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto mt-8 px-4">
+        <!-- Post Form -->
+        <section class="mb-8">
+            <form class="bg-white p-6 rounded shadow-md">
+                <h2 class="text-xl font-semibold mb-4"><span class="material-icons mr-2">edit</span>Crear Publicación</h2>
+                <textarea 
+                    class="w-full border border-gray-300 rounded p-3 mb-4 focus:outline-none focus:ring focus:ring-blue-300" 
+                    rows="4" 
+                    placeholder="Escribe algo..."
+                ></textarea>
+                <input 
+                    type="url" 
+                    class="w-full border border-gray-300 rounded p-3 mb-4 focus:outline-none focus:ring focus:ring-blue-300" 
+                    placeholder="Añadir un enlace de descarga (opcional)"
+                />
+                <button 
+                    type="submit" 
+                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300"
+                >
+                    <span class="material-icons mr-2">send</span>Publicar
+                </button>
+            </form>
+        </section>
+
+        <!-- Posts -->
+        <section id="posts" class="space-y-4">
+            <!-- Los posts se cargarán aquí dinámicamente -->
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-blue-600 text-white py-4 mt-8">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2025 Red Social para Docentes. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+</body>
+</html>
