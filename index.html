@@ -9,20 +9,43 @@
     <script src="js/parserConfig.js"></script>
     <script src="js/loadPosts.js"></script>
     <script src="js/category_filter.js"></script>
+    <script src="js/authentication.js"></script>
 	<script src="js/postHandler.js"></script>
 	<script src="https://cdn.tailwindcss.com"></script>
-	
+    <style>
+        /* Estilos del modal */
+        #loginModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        #loginModal .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+        }
+    </style>
 </head>
 <body class="bg-blue-50 min-h-screen">
     <!-- Header -->
     <header class="bg-blue-600 text-white py-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center px-4">
-            <h1 class="text-2xl font-bold"><span class="material-icons mr-2">school</span>Red Social para Docentes</h1>
+            <h1 class="text-2xl font-bold">
+                <span class="material-icons mr-2">school</span>
+                Red Social para Docentes
+            </h1>
             <nav>
-                <ul class="flex space-x-4">
-                    <li><a href="#" class="hover:underline"><span class="material-icons mr-1">home</span>Inicio</a></li>
-                    <li><a href="#" class="hover:underline"><span class="material-icons mr-1">person</span>Mi Perfil</a></li>
-                    <li><a href="#" class="hover:underline"><span class="material-icons mr-1">logout</span>Cerrar Sesión</a></li>
+                <ul class="flex space-x-4" id="authButtons">
+                    <!-- Botones dinámicos según autenticación -->
                 </ul>
             </nav>
         </div>
@@ -43,9 +66,12 @@
     <!-- Main Content -->
     <main class="container mx-auto mt-8 px-4">
         <!-- Post Form -->
-        <section class="mb-8">
+        <section id="postFormSection" class="mb-8 hidden">
             <form class="bg-white p-6 rounded shadow-md">
-                <h2 class="text-xl font-semibold mb-4"><span class="material-icons mr-2">edit</span>Crear Publicación</h2>
+                <h2 class="text-xl font-semibold mb-4">
+                    <span class="material-icons mr-2">edit</span>
+                    Crear Publicación
+                </h2>
                 <textarea 
                     class="w-full border border-gray-300 rounded p-3 mb-4 focus:outline-none focus:ring focus:ring-blue-300" 
                     rows="4" 
@@ -65,11 +91,40 @@
             </form>
         </section>
 
+        <!-- WhatsApp Contact Button -->
+        <section class="mb-8">
+            <div class="bg-white p-6 rounded shadow-md">
+                <h2 class="text-xl font-semibold mb-4">
+                    <span class="material-icons mr-2">contact_support</span>
+                    Solicitar Acceso
+                </h2>
+                <a href="https://wa.me/50589073669?text=Hola,%20quiero%20solicitar%20acceso%20para%20publicar%20contenido%20en%20la%20Red%20Social%20para%20Docentes." 
+                   class="bg-green-500 text-white px-4 py-2 rounded flex items-center justify-center space-x-2 hover:bg-green-600 focus:outline-none focus:ring focus:ring-green-300" 
+                   target="_blank">
+                    <span class="material-icons">whatsapp</span>
+                    <span>Solicitar acceso para publicar contenido</span>
+                </a>
+            </div>
+        </section>
+
         <!-- Posts -->
         <section id="posts" class="space-y-4">
             <!-- Los posts se cargarán aquí dinámicamente -->
         </section>
     </main>
+
+    <!-- Modal de inicio de sesión -->
+    <div id="loginModal" class="flex">
+        <div class="modal-content">
+            <h2 class="text-xl font-semibold mb-4">Iniciar Sesión</h2>
+            <form id="modalLogInForm">
+                <input type="text" name="username" placeholder="Usuario" class="w-full border border-gray-300 rounded p-3 mb-4" required>
+                <input type="password" name="password" placeholder="Contraseña" class="w-full border border-gray-300 rounded p-3 mb-4" required>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Iniciar Sesión</button>
+            </form>
+            <button id="closeModal" class="mt-4 text-red-600 hover:underline">Cerrar</button>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="bg-blue-600 text-white py-4 mt-8">
@@ -77,5 +132,60 @@
             <p>&copy; 2025 Red Social para Docentes. Todos los derechos reservados.</p>
         </div>
     </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const currentUser = Parse.User.current();
+            const postFormSection = document.getElementById("postFormSection");
+            const authButtons = document.getElementById("authButtons");
+            const loginModal = document.getElementById("loginModal");
+            const closeModal = document.getElementById("closeModal");
+            const modalLogInForm = document.getElementById("modalLogInForm");
+
+            if (currentUser) {
+                // Mostrar formulario de publicación si está autenticado
+                postFormSection.classList.remove("hidden");
+
+                // Botón de cerrar sesión
+                authButtons.innerHTML = `
+                    <li><button id="logOutButton" class="hover:underline bg-transparent border-none cursor-pointer">
+                        <span class="material-icons mr-1">logout</span>Cerrar Sesión
+                    </button></li>`;
+
+                // Evento de cerrar sesión
+                document.getElementById("logOutButton").addEventListener("click", (event) => {
+                    event.preventDefault();
+                    logOut();
+                });
+            } else {
+                // Botón de iniciar sesión
+                authButtons.innerHTML = `
+                    <li><button id="logInButton" class="hover:underline bg-transparent border-none cursor-pointer">
+                        <span class="material-icons mr-1">login</span>Iniciar Sesión
+                    </button></li>`;
+
+                // Mostrar modal de inicio de sesión
+                document.getElementById("logInButton").addEventListener("click", () => {
+                    loginModal.style.display = "flex";
+                });
+
+                // Manejar cierre del modal
+                closeModal.addEventListener("click", () => {
+                    loginModal.style.display = "none";
+                });
+
+                // Manejar inicio de sesión desde el modal
+                modalLogInForm.addEventListener("submit", (event) => {
+                    event.preventDefault();
+                    const username = modalLogInForm.querySelector("input[name='username']").value;
+                    const password = modalLogInForm.querySelector("input[name='password']").value;
+                    if (username && password) {
+                        logIn(username, password);
+                        loginModal.style.display = "none";
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
