@@ -16,6 +16,7 @@ async function fetchPosts(page = 0, limit = 10) {
     query.descending("createdAt"); // Ordenar por fecha de creación
     query.limit(limit); // Número de posts por página
     query.skip(page * limit); // Saltar los posts ya cargados
+    query.include("author"); // Incluir información del autor
 
     try {
         return await query.find();
@@ -38,10 +39,12 @@ function renderPosts(posts) {
         const link = post.get("link");
         const category = post.get("category");
         const createdAt = post.createdAt;
+        const author = post.get("author");
+        const authorName = author ? author.get("username") : "Autor desconocido";
 
         postElement.innerHTML = `
             <div class="flex justify-between items-center">
-                <h3 class="text-lg font-semibold"><span class="material-icons mr-2">account_circle</span>Autor desconocido</h3>
+                <h3 class="text-lg font-semibold"><span class="material-icons mr-2">account_circle</span>${authorName}</h3>
                 <span class="text-gray-500 text-sm"><span class="material-icons mr-1">schedule</span>${new Date(createdAt).toLocaleString()}</span>
             </div>
             <p class="mt-2 text-gray-700">${content}</p>
@@ -79,7 +82,7 @@ async function loadMorePosts() {
 
 // Evento para detectar el desplazamiento al final de la página
 window.addEventListener("scroll", () => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 && !isLoading) {
         loadMorePosts();
     }
 });
