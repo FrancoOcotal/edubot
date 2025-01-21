@@ -1,52 +1,48 @@
-// postHandler.js
+// Crear notificación visual
+function showNotification(message, type = "success") {
+    const notification = document.createElement("div");
+    notification.textContent = message;
+    notification.className = `fixed top-4 right-4 py-2 px-4 rounded shadow-md ${
+        type === "error" ? "bg-red-500 text-white" : "bg-green-500 text-white"
+    }`;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
+// Función para crear un post
 async function createPost(content, link, category) {
-    // Verificar si Parse está inicializado
     if (typeof Parse === "undefined") {
-        console.error("Parse no está inicializado. Asegúrate de incluir el CDN correcto.");
+        console.error("Parse no está inicializado. Verifica el CDN.");
+        showNotification("Error interno del sistema.", "error");
         return;
     }
 
-    // Verificar si hay un usuario autenticado
     const currentUser = Parse.User.current();
     if (!currentUser) {
-        alert("Debes iniciar sesión para publicar.");
+        showNotification("Debes iniciar sesión para publicar.", "error");
         return;
     }
 
-    // Extraer hashtags del contenido y usar los primeros como categorías si no se define
     const hashtags = extractHashtags(content);
-    const mainCategory = hashtags.length > 0 ? hashtags[0] : category || "General"; // Usar el primer hashtag como categoría principal
+    const mainCategory = hashtags.length > 0 ? hashtags[0] : category || "General";
 
-    // Clase Post en Back4App
     const Post = Parse.Object.extend("Post");
     const post = new Post();
 
-    // Asignar valores al post
     post.set("content", content);
-    post.set("link", link || null); // Opcional
-    post.set("category", mainCategory); // Guardar categoría principal
-    post.set("hashtags", hashtags); // Guardar hashtags como lista
-    post.set("likes", 0); // Inicializar con 0 likes
-    post.set("author", currentUser); // Asignar el autor al post
+    post.set("link", link || null);
+    post.set("category", mainCategory);
+    post.set("hashtags", hashtags);
+    post.set("likes", 0);
+    post.set("author", currentUser);
 
     try {
-        // Guardar en la base de datos
         await post.save();
+        showNotification("¡Publicación creada con éxito!");
 
-        // Mostrar notificación de éxito
-        const successMessage = document.createElement("div");
-        successMessage.textContent = "¡Publicación creada con éxito!";
-        successMessage.className = "fixed top-4 right-4 bg-green-500 text-white py-2 px-4 rounded shadow-md";
-        document.body.appendChild(successMessage);
-
-        setTimeout(() => successMessage.remove(), 3000); // Desaparece en 3 segundos
-
-        // Limpiar los cuadros de texto
         const form = document.querySelector("form");
         form.reset();
 
-        // Insertar el nuevo post en la página
-        const postsContainer = document.getElementById("posts");
         const newPostHtml = `
             <div class="post bg-white p-4 rounded shadow-md">
                 <p>${content}</p>
@@ -54,44 +50,35 @@ async function createPost(content, link, category) {
                 <p class="text-sm text-gray-500 mt-2">Categoría: ${mainCategory}</p>
             </div>
         `;
-        postsContainer.insertAdjacentHTML("afterbegin", newPostHtml);
+        document.getElementById("posts").insertAdjacentHTML("afterbegin", newPostHtml);
     } catch (error) {
         console.error("Error al crear la publicación:", error);
-        if (error.code === 101) {
-            alert("Error de conexión. Verifica tu red.");
-        } else if (error.code === 119) {
-            alert("Permiso denegado. Asegúrate de estar autenticado.");
-        } else {
-            alert("Hubo un problema al crear la publicación. Intenta nuevamente.");
-        }
+        showNotification("Error al crear la publicación. Intenta nuevamente.", "error");
     }
 }
 
-// Función para extraer hashtags del contenido
+// Extraer hashtags del contenido
 function extractHashtags(content) {
     const hashtagRegex = /#(\w+)/g;
     const matches = content.match(hashtagRegex);
-    return matches ? matches.map((tag) => tag.slice(1)) : []; // Eliminar el símbolo #
+    return matches ? matches.map((tag) => tag.slice(1)) : [];
 }
 
-// Capturar datos del formulario
+// Manejar el evento del formulario
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.querySelector("form");
     form.addEventListener("submit", (event) => {
-        event.preventDefault(); // Prevenir recarga de página
+        event.preventDefault();
 
-        // Obtener valores del formulario
-        const content = form.querySelector("textarea").value;
-        const link = form.querySelector("input[type='url']").value;
-        const category = "General"; // Cambiar si deseas usar categorías dinámicas
+        const content = form.querySelector("textarea").value.trim();
+        const link = form.querySelector("input[type='url']").value.trim();
+        const category = "General";
 
-        // Validar datos
-        if (!content.trim()) {
-            alert("El contenido de la publicación no puede estar vacío.");
+        if (!content) {
+            showNotification("El contenido de la publicación no puede estar vacío.", "error");
             return;
         }
 
-        // Crear post
         createPost(content, link, category);
     });
 });
