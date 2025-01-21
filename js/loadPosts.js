@@ -131,5 +131,10 @@ document.addEventListener("click", (event) => {
 
 // Cargar los primeros posts al cargar la página
 document.addEventListener("DOMContentLoaded", () => {
-    loadMorePosts();
+    const currentUser = Parse.User.current();
+    if (currentUser) {
+        loadMorePosts();
+    } else {
+        console.log("Usuario no autenticado. No se cargarán los posts.");
+    }
 });
