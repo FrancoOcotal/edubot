@@ -9,6 +9,7 @@ async function fetchPostsByCategory(category) {
     const query = new Parse.Query(Post);
     query.equalTo("category", category); // Filtrar por categoría
     query.descending("createdAt"); // Ordenar por fecha de creación
+    query.include("author"); // Incluir información del autor (username)
 
     try {
         return await query.find();
@@ -32,10 +33,14 @@ function renderPosts(posts) {
         const link = post.get("link");
         const category = post.get("category");
         const createdAt = post.createdAt;
+        const author = post.get("author");
+
+        // Verificar si el autor existe y obtener su username
+        const authorName = author ? author.get("username") || "Autor desconocido" : "Autor desconocido";
 
         postElement.innerHTML = `
             <div class="flex justify-between items-center">
-                <h3 class="text-lg font-semibold"><span class="material-icons mr-2">account_circle</span>Autor desconocido</h3>
+                <h3 class="text-lg font-semibold"><span class="material-icons mr-2">account_circle</span>${authorName}</h3>
                 <span class="text-gray-500 text-sm"><span class="material-icons mr-1">schedule</span>${new Date(createdAt).toLocaleString()}</span>
             </div>
             <p class="mt-2 text-gray-700">${content}</p>
