@@ -15,7 +15,7 @@ async function createPost(content, link, category) {
 
     // Extraer hashtags del contenido y usar los primeros como categorías si no se define
     const hashtags = extractHashtags(content);
-    const mainCategories = hashtags.length > 0 ? hashtags.slice(0, 3) : [category || "General"];
+    const mainCategory = hashtags.length > 0 ? hashtags[0] : category || "General"; // Usar el primer hashtag como categoría principal
 
     // Clase Post en Back4App
     const Post = Parse.Object.extend("Post");
@@ -24,7 +24,7 @@ async function createPost(content, link, category) {
     // Asignar valores al post
     post.set("content", content);
     post.set("link", link || null); // Opcional
-    post.set("categories", mainCategories); // Guardar múltiples categorías
+    post.set("category", mainCategory); // Guardar categoría principal
     post.set("hashtags", hashtags); // Guardar hashtags como lista
     post.set("likes", 0); // Inicializar con 0 likes
     post.set("author", currentUser); // Asignar el autor al post
@@ -51,7 +51,7 @@ async function createPost(content, link, category) {
             <div class="post bg-white p-4 rounded shadow-md">
                 <p>${content}</p>
                 ${link ? `<a href="${link}" target="_blank" class="text-blue-600 underline">Descargar</a>` : ""}
-                <p class="text-sm text-gray-500 mt-2">Categorías: ${mainCategories.join(", ")}</p>
+                <p class="text-sm text-gray-500 mt-2">Categoría: ${mainCategory}</p>
             </div>
         `;
         postsContainer.insertAdjacentHTML("afterbegin", newPostHtml);
@@ -71,7 +71,7 @@ async function createPost(content, link, category) {
 function extractHashtags(content) {
     const hashtagRegex = /#(\w+)/g;
     const matches = content.match(hashtagRegex);
-    return matches ? matches : [];
+    return matches ? matches.map((tag) => tag.slice(1)) : []; // Eliminar el símbolo #
 }
 
 // Capturar datos del formulario

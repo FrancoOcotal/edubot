@@ -2,6 +2,7 @@
 let currentPage = 0;
 const postsPerPage = 10;
 let isLoading = false; // Previene múltiples solicitudes simultáneas
+let currentCategory = null; // Almacena la categoría actual para el filtrado
 
 // Indicador de carga
 function showLoadingIndicator(show) {
@@ -12,7 +13,7 @@ function showLoadingIndicator(show) {
 }
 
 // Función para obtener posts desde Back4App
-async function fetchPosts(page = 0, limit = 10) {
+async function fetchPosts(page = 0, limit = 10, category = null) {
     if (typeof Parse === "undefined") {
         console.error("Parse no está inicializado. Asegúrate de incluir el CDN correcto.");
         return [];
@@ -25,6 +26,11 @@ async function fetchPosts(page = 0, limit = 10) {
     query.limit(limit); // Número de posts por página
     query.skip(page * limit); // Saltar los posts ya cargados
     query.include("author"); // Incluir información del autor (username)
+
+    // Si se proporciona una categoría, filtrar por ella
+    if (category) {
+        query.equalTo("category", category);
+    }
 
     try {
         return await query.find();
@@ -50,6 +56,7 @@ function renderPosts(posts, clearExisting = false) {
         const createdAt = post.createdAt;
         const author = post.get("author");
 
+        // Verificar si el autor existe y obtener su username
         const authorName = author ? author.get("username") || "Autor desconocido" : "Autor desconocido";
 
         const postElement = document.createElement("article");
@@ -78,15 +85,20 @@ function renderPosts(posts, clearExisting = false) {
 }
 
 // Función para cargar más posts
-async function loadMorePosts() {
+async function loadMorePosts(category = null) {
     if (isLoading) return;
+
+    if (category !== currentCategory) {
+        currentPage = 0; // Reiniciar paginación si la categoría cambia
+        currentCategory = category; // Actualizar la categoría actual
+    }
 
     isLoading = true;
     showLoadingIndicator(true);
 
-    const posts = await fetchPosts(currentPage, postsPerPage);
+    const posts = await fetchPosts(currentPage, postsPerPage, category);
     if (posts.length > 0) {
-        renderPosts(posts);
+        renderPosts(posts, currentPage === 0); // Limpiar solo si es la primera página
         currentPage++;
     } else {
         console.log("No hay más posts para cargar.");
@@ -101,10 +113,19 @@ function addSinglePost(postData) {
     renderPosts([postData]);
 }
 
-// Evento para detectar el desplazamiento al final de la página
+// Detectar el desplazamiento para carga infinita
 window.addEventListener("scroll", () => {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 && !isLoading) {
-        loadMorePosts();
+        loadMorePosts(currentCategory);
+    }
+});
+
+// Detectar clics en enlaces de categorías
+document.addEventListener("click", (event) => {
+    if (event.target.dataset.category) {
+        event.preventDefault();
+        const category = event.target.dataset.category;
+        loadMorePosts(category); // Cargar posts filtrados por categoría
     }
 });
 

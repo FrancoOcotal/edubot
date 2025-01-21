@@ -7,12 +7,14 @@ async function fetchPostsByCategory(category) {
 
     const Post = Parse.Object.extend("Post");
     const query = new Parse.Query(Post);
-    query.equalTo("category", category); // Filtrar por categoría
+    query.equalTo("category", category); // Filtrar por categoría (sin hashtag)
     query.descending("createdAt"); // Ordenar por fecha de creación
     query.include("author"); // Incluir información del autor (username)
 
     try {
-        return await query.find();
+        const posts = await query.find();
+        console.log(`Posts encontrados para la categoría '${category}':`, posts);
+        return posts;
     } catch (error) {
         console.error("Error al cargar los posts por categoría:", error);
         return [];
@@ -20,9 +22,12 @@ async function fetchPostsByCategory(category) {
 }
 
 // Función para renderizar los posts en la página
-function renderPosts(posts) {
+function renderPosts(posts, clearExisting = false) {
     const postsContainer = document.getElementById("posts");
-    postsContainer.innerHTML = ""; // Limpiar los posts existentes
+
+    if (clearExisting) {
+        postsContainer.innerHTML = ""; // Limpiar los posts existentes
+    }
 
     posts.forEach((post) => {
         // Crear elementos HTML para el post
@@ -63,13 +68,18 @@ function renderPosts(posts) {
 
 // Detectar clics en enlaces de categoría
 document.addEventListener("click", async (event) => {
-    if (event.target.dataset.category) {
+    const category = event.target.dataset.category;
+    if (category) {
         event.preventDefault(); // Prevenir el comportamiento por defecto del enlace
 
-        const category = event.target.dataset.category;
+        console.log(`Cargando posts para la categoría: ${category}`);
         const posts = await fetchPostsByCategory(category); // Cargar posts por categoría
 
+        if (posts.length === 0) {
+            console.log(`No se encontraron posts para la categoría '${category}'.`);
+        }
+
         // Renderizar los posts
-        renderPosts(posts);
+        renderPosts(posts, true); // Limpiar los posts existentes antes de renderizar
     }
 });
