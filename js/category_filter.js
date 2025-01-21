@@ -1,4 +1,4 @@
-// Función para cargar posts por categoría
+// category_filter.js
 async function fetchPostsByCategory(category) {
     if (typeof Parse === "undefined") {
         console.error("Parse no está inicializado. Asegúrate de incluir el CDN correcto.");

@@ -1,7 +1,15 @@
-// Variables globales para la paginación
+// loadPosts.js
 let currentPage = 0;
 const postsPerPage = 10;
 let isLoading = false; // Previene múltiples solicitudes simultáneas
+
+// Indicador de carga
+function showLoadingIndicator(show) {
+    const loadingIndicator = document.getElementById("loadingIndicator");
+    if (loadingIndicator) {
+        loadingIndicator.style.display = show ? "block" : "none";
+    }
+}
 
 // Función para obtener posts desde Back4App
 async function fetchPosts(page = 0, limit = 10) {
@@ -16,31 +24,36 @@ async function fetchPosts(page = 0, limit = 10) {
     query.descending("createdAt"); // Ordenar por fecha de creación
     query.limit(limit); // Número de posts por página
     query.skip(page * limit); // Saltar los posts ya cargados
-    query.include("author"); // Incluir información del autor
+    query.include("author"); // Incluir información del autor (username)
 
     try {
         return await query.find();
     } catch (error) {
         console.error("Error al cargar los posts:", error);
+        showNotification("Error al cargar los posts. Inténtalo nuevamente.", "error");
         return [];
     }
 }
 
 // Función para renderizar los posts en la página
-function renderPosts(posts) {
+function renderPosts(posts, clearExisting = false) {
     const postsContainer = document.getElementById("posts");
 
-    posts.forEach((post) => {
-        // Crear elementos HTML para el post
-        const postElement = document.createElement("article");
-        postElement.className = "bg-white p-6 rounded shadow-md mb-6";
+    if (clearExisting) {
+        postsContainer.innerHTML = ""; // Limpiar posts existentes
+    }
 
+    posts.forEach((post) => {
         const content = post.get("content");
         const link = post.get("link");
         const category = post.get("category");
         const createdAt = post.createdAt;
         const author = post.get("author");
-        const authorName = author ? author.get("username") : "Autor desconocido";
+
+        const authorName = author ? author.get("username") || "Autor desconocido" : "Autor desconocido";
+
+        const postElement = document.createElement("article");
+        postElement.className = "bg-white p-6 rounded shadow-md mb-6 border border-gray-200";
 
         postElement.innerHTML = `
             <div class="flex justify-between items-center">
@@ -60,16 +73,17 @@ function renderPosts(posts) {
             </div>
         `;
 
-        // Agregar el post al contenedor
         postsContainer.appendChild(postElement);
     });
 }
 
-// Función para cargar más posts al desplazarse hacia abajo
+// Función para cargar más posts
 async function loadMorePosts() {
     if (isLoading) return;
 
     isLoading = true;
+    showLoadingIndicator(true);
+
     const posts = await fetchPosts(currentPage, postsPerPage);
     if (posts.length > 0) {
         renderPosts(posts);
@@ -77,7 +91,14 @@ async function loadMorePosts() {
     } else {
         console.log("No hay más posts para cargar.");
     }
+
+    showLoadingIndicator(false);
     isLoading = false;
+}
+
+// Función para insertar un solo post (sin recargar todos los posts)
+function addSinglePost(postData) {
+    renderPosts([postData]);
 }
 
 // Evento para detectar el desplazamiento al final de la página

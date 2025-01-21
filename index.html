@@ -47,6 +47,7 @@
                 <ul class="flex space-x-4" id="authButtons">
                     <!-- Botones dinámicos según autenticación -->
                 </ul>
+                <span id="userDisplay" class="hidden text-sm font-semibold"></span>
             </nav>
         </div>
     </header>
@@ -92,7 +93,7 @@
         </section>
 
         <!-- WhatsApp Contact Button -->
-        <section class="mb-8">
+        <section id="accessRequestDiv" class="mb-8">
             <div class="bg-white p-6 rounded shadow-md">
                 <h2 class="text-xl font-semibold mb-4">
                     <span class="material-icons mr-2">contact_support</span>
@@ -138,6 +139,8 @@
             const currentUser = Parse.User.current();
             const postFormSection = document.getElementById("postFormSection");
             const authButtons = document.getElementById("authButtons");
+            const userDisplay = document.getElementById("userDisplay");
+            const accessRequestDiv = document.getElementById("accessRequestDiv");
             const loginModal = document.getElementById("loginModal");
             const closeModal = document.getElementById("closeModal");
             const modalLogInForm = document.getElementById("modalLogInForm");
@@ -146,10 +149,17 @@
                 // Mostrar formulario de publicación si está autenticado
                 postFormSection.classList.remove("hidden");
 
+                // Mostrar nombre del usuario actual
+                userDisplay.textContent = `Bienvenido, ${currentUser.get("username") || "Usuario"}`;
+                userDisplay.classList.remove("hidden");
+
+                // Ocultar el div de solicitar acceso
+                accessRequestDiv.classList.add("hidden");
+
                 // Botón de cerrar sesión
                 authButtons.innerHTML = `
                     <li><button id="logOutButton" class="hover:underline bg-transparent border-none cursor-pointer">
-                        <span class="material-icons mr-1">logout</span>Cerrar Sesión
+                        <span class="material-icons mr-1">logout</span>
                     </button></li>`;
 
                 // Evento de cerrar sesión

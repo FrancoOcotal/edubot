@@ -1,4 +1,4 @@
-// Función para publicar un post con hashtags
+// postHandler.js
 async function createPost(content, link, category) {
     // Verificar si Parse está inicializado
     if (typeof Parse === "undefined") {
@@ -6,9 +6,16 @@ async function createPost(content, link, category) {
         return;
     }
 
-    // Extraer hashtags del contenido y usar el primero como categoría si no se define
+    // Verificar si hay un usuario autenticado
+    const currentUser = Parse.User.current();
+    if (!currentUser) {
+        alert("Debes iniciar sesión para publicar.");
+        return;
+    }
+
+    // Extraer hashtags del contenido y usar los primeros como categorías si no se define
     const hashtags = extractHashtags(content);
-    const mainCategory = hashtags.length > 0 ? hashtags[0] : category || "General";
+    const mainCategories = hashtags.length > 0 ? hashtags.slice(0, 3) : [category || "General"];
 
     // Clase Post en Back4App
     const Post = Parse.Object.extend("Post");
@@ -17,27 +24,46 @@ async function createPost(content, link, category) {
     // Asignar valores al post
     post.set("content", content);
     post.set("link", link || null); // Opcional
-    post.set("category", mainCategory); // Usar hashtag principal como categoría
+    post.set("categories", mainCategories); // Guardar múltiples categorías
     post.set("hashtags", hashtags); // Guardar hashtags como lista
     post.set("likes", 0); // Inicializar con 0 likes
+    post.set("author", currentUser); // Asignar el autor al post
 
     try {
         // Guardar en la base de datos
         await post.save();
-        alert("¡Publicación creada con éxito!");
+
+        // Mostrar notificación de éxito
+        const successMessage = document.createElement("div");
+        successMessage.textContent = "¡Publicación creada con éxito!";
+        successMessage.className = "fixed top-4 right-4 bg-green-500 text-white py-2 px-4 rounded shadow-md";
+        document.body.appendChild(successMessage);
+
+        setTimeout(() => successMessage.remove(), 3000); // Desaparece en 3 segundos
 
         // Limpiar los cuadros de texto
-        document.querySelector("textarea").value = "";
-        document.querySelector("input[type='url']").value = "";
+        const form = document.querySelector("form");
+        form.reset();
 
-        // Cargar los posts actualizados
+        // Insertar el nuevo post en la página
         const postsContainer = document.getElementById("posts");
-        postsContainer.innerHTML = ""; // Limpiar posts actuales
-        currentPage = 0; // Reiniciar paginación
-        loadMorePosts(); // Cargar los posts desde el principio
+        const newPostHtml = `
+            <div class="post bg-white p-4 rounded shadow-md">
+                <p>${content}</p>
+                ${link ? `<a href="${link}" target="_blank" class="text-blue-600 underline">Descargar</a>` : ""}
+                <p class="text-sm text-gray-500 mt-2">Categorías: ${mainCategories.join(", ")}</p>
+            </div>
+        `;
+        postsContainer.insertAdjacentHTML("afterbegin", newPostHtml);
     } catch (error) {
         console.error("Error al crear la publicación:", error);
-        alert("Hubo un problema al crear la publicación. Intenta nuevamente.");
+        if (error.code === 101) {
+            alert("Error de conexión. Verifica tu red.");
+        } else if (error.code === 119) {
+            alert("Permiso denegado. Asegúrate de estar autenticado.");
+        } else {
+            alert("Hubo un problema al crear la publicación. Intenta nuevamente.");
+        }
     }
 }
 
