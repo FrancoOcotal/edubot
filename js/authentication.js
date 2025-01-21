@@ -1,12 +1,23 @@
+// Mostrar notificación en la UI
+function showNotification(message, type = "info") {
+    const notification = document.createElement("div");
+    notification.textContent = message;
+    notification.className = `fixed top-4 right-4 py-2 px-4 rounded shadow-md ${
+        type === "error" ? "bg-red-500 text-white" : "bg-green-500 text-white"
+    }`;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
 // Función para iniciar sesión
 async function logIn(username, password) {
     try {
         const user = await Parse.User.logIn(username, password);
-        alert(`¡Bienvenido, ${user.get("username") || "usuario"}!`);
-        window.location.reload(); // Recargar la página o redirigir
+        showNotification(`¡Bienvenido, ${user.get("username") || "Usuario"}!`, "success");
+        window.location.reload();
     } catch (error) {
         console.error("Error al iniciar sesión:", error);
-        alert(`Error: ${error.message}`);
+        showNotification(`Error al iniciar sesión: ${error.message}`, "error");
     }
 }
 
@@ -14,11 +25,11 @@ async function logIn(username, password) {
 async function logOut() {
     try {
         await Parse.User.logOut();
-        alert("¡Has cerrado sesión exitosamente!");
-        window.location.reload(); // Recargar la página o redirigir
+        showNotification("¡Has cerrado sesión exitosamente!", "success");
+        window.location.reload();
     } catch (error) {
         console.error("Error al cerrar sesión:", error);
-        alert(`Error: ${error.message}`);
+        showNotification(`Error al cerrar sesión: ${error.message}`, "error");
     }
 }
 
@@ -34,7 +45,7 @@ function getCurrentUser() {
     }
 }
 
-// Eventos para los formularios de inicio de sesión y cierre de sesión
+// Manejo de eventos en DOM
 document.addEventListener("DOMContentLoaded", () => {
     const logInForm = document.getElementById("logInForm");
     const logOutButton = document.getElementById("logOutButton");
@@ -42,9 +53,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (logInForm) {
         logInForm.addEventListener("submit", (event) => {
             event.preventDefault();
-            const username = logInForm.querySelector("input[name='username']").value;
-            const password = logInForm.querySelector("input[name='password']").value;
-            logIn(username, password);
+            const username = logInForm.querySelector("input[name='username']").value.trim();
+            const password = logInForm.querySelector("input[name='password']").value.trim();
+            if (username && password) {
+                logIn(username, password);
+            } else {
+                showNotification("Por favor, completa todos los campos.", "error");
+            }
         });
     }
 
