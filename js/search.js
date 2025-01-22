@@ -1,21 +1,22 @@
-// Inicializar Fuse.js con configuraciones específicas
-let fuse;
+// search.js
+let lunrIndex;
+let posts = []; // Almacén de documentos originales para referencias
 
-// Configuración inicial para Fuse.js y carga de publicaciones
+// Inicializar Lunr.js con configuraciones específicas y cargar publicaciones
 async function initializeSearch() {
-    const posts = await fetchAllPosts();
-    const fuseOptions = {
-        keys: [
-            { name: "content", weight: 0.6 },
-            { name: "category", weight: 0.3 },
-            { name: "enlace", weight: 0.1 },
-        ],
-        threshold: 0.4, // Permite coincidencias más amplias
-        ignoreLocation: true, // Ignorar la ubicación de coincidencia exacta
-        minMatchCharLength: 2, // Coincidencias de al menos 2 caracteres
-        shouldSort: true, // Ordenar resultados por relevancia
-    };
-    fuse = new Fuse(posts, fuseOptions);
+    posts = await fetchAllPosts(); // Cargar publicaciones en memoria
+
+    // Crear índice de Lunr.js
+    lunrIndex = lunr(function () {
+        this.ref("id"); // Identificador único para cada post
+        this.field("content", { boost: 10 }); // Campo principal con mayor peso
+        this.field("category", { boost: 5 }); // Campo de categoría con peso medio
+        this.field("author", { boost: 2 }); // Autor con menor peso
+
+        posts.forEach((post) => {
+            this.add(post); // Agregar cada publicación al índice
+        });
+    });
 }
 
 // Obtener todas las publicaciones desde la base de datos
@@ -30,8 +31,8 @@ async function fetchAllPosts() {
             id: post.id,
             content: normalizeText(post.get("content")),
             category: normalizeText(post.get("category")),
-            enlace: post.get("link") || "No disponible",
             author: post.get("author") ? post.get("author").get("username") : "Desconocido",
+            enlace: post.get("link") || "No disponible",
         }));
     } catch (error) {
         console.error("Error al obtener publicaciones:", error);
@@ -44,15 +45,17 @@ function normalizeText(text) {
     return text ? text.toLowerCase().replace(/[^a-z0-9áéíóúñü ]/gi, "") : "";
 }
 
-// Función para realizar la búsqueda con Fuse.js
+// Función para realizar la búsqueda con Lunr.js
 async function searchPosts(query) {
-    if (!fuse) {
+    if (!lunrIndex) {
         await initializeSearch();
     }
 
     const normalizedQuery = normalizeText(query); // Normalizar entrada del usuario
-    const results = fuse.search(normalizedQuery);
-    return results.map((result) => result.item); // Retornar los elementos coincidentes
+    const results = lunrIndex.search(normalizedQuery); // Buscar en el índice
+
+    // Retornar documentos originales basados en las referencias
+    return results.map((result) => posts.find(post => post.id === result.ref));
 }
 
 // Manejar eventos del formulario de búsqueda
@@ -88,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <h3 class="text-lg font-semibold">${result.content}</h3>
                             <p class="text-sm text-gray-500 mt-2">Categoría: ${result.category}</p>
                             <p class="text-sm text-gray-500 mt-1">Autor: ${result.author}</p>
-                            <p class="text-sm text-gray-500 mt-1">Enlace: <a href="${result.enlace}" target="_blank" class="text-blue-500 hover:underline">${result.enlace}</a></p>
+                            <p class="text-sm text-gray-500 mt-1">Enlace: <a href="${result.enlace}" target="_blank" class="text-blue-500 hover:underline">Enlace</a></p>
                         `;
                         resultsContainer.appendChild(postElement);
                     });
