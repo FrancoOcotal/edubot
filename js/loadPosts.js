@@ -50,11 +50,24 @@ function renderPosts(posts) {
         const category = post.get("category");
         const createdAt = post.createdAt;
         const author = post.get("author");
+        const pin = post.get("pin"); // Obtener el pin del post
 
         const authorName = author ? author.get("username") || "Autor desconocido" : "Autor desconocido";
 
         const postElement = document.createElement("article");
         postElement.className = "bg-white p-6 rounded shadow-md mb-6 border border-gray-200";
+
+        // Convertir pin corto al formato de Pinterest embebible
+        let pinEmbed = "";
+        if (pin) {
+            const pinId = pin.split('/').pop(); // Extraer el ID del pin
+            const embedUrl = `https://www.pinterest.com/pin/${pinId}/`; // Construir el enlace embebible
+            pinEmbed = `
+                <div class="mt-4">
+                    <a href="${embedUrl}" data-pin-do="embedPin" data-pin-width="large"></a>
+                </div>
+            `;
+        }
 
         postElement.innerHTML = `
             <div class="flex justify-between items-center">
@@ -63,11 +76,17 @@ function renderPosts(posts) {
             </div>
             <p class="mt-2 text-gray-700">${content}</p>
             ${link ? `<a href="${link}" class="text-blue-600 hover:underline"><span class="material-icons mr-1">link</span>Enlace</a>` : ""}
+            ${pinEmbed}
             <p class="text-sm text-gray-500 mt-1">Categoría: <span class="text-blue-600">${category}</span></p>
         `;
 
         postsContainer.appendChild(postElement);
     });
+
+    // Inicializar el script de Pinterest para renderizar pines
+    if (typeof PinUtils !== "undefined") {
+        PinUtils.build();
+    }
 }
 
 // Función para cargar más posts
