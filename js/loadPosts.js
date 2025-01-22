@@ -60,10 +60,9 @@ function renderPosts(posts) {
         // Si el pin existe, incrustar el iframe de Pinterest
         let pinEmbed = "";
         if (pin) {
-            const embedUrl = pin.replace('https://pin.it/', 'https://www.pinterest.com/pin/');
             pinEmbed = `
                 <div class="mt-4">
-                    <a href="${embedUrl}" data-pin-do="embedPin" data-pin-width="large"></a>
+                    <a href="${pin}" data-pin-do="embedPin" data-pin-width="large"></a>
                 </div>
             `;
         }
@@ -85,8 +84,6 @@ function renderPosts(posts) {
     // Inicializar el script de Pinterest para renderizar pines
     if (typeof PinUtils !== "undefined") {
         PinUtils.build();
-    } else {
-        console.error("Pinterest script (PinUtils) no está cargado correctamente.");
     }
 }
 

@@ -10,13 +10,9 @@
     <script src="js/loadPosts.js"></script>
     <script src="js/category_filter.js"></script>
     <script src="js/authentication.js"></script>
-    <script src="js/postHandler.js"></script>
-    <script src="js/search.js"></script>
-	<script src="js/modals.js"></script>
-	
-
-	
-    <script src="https://cdn.tailwindcss.com"></script>
+	<script src="js/postHandler.js"></script>
+	<script src="js/search.js"></script>
+	<script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Estilos del modal */
         #loginModal {
@@ -56,39 +52,40 @@
             </nav>
         </div>
     </header>
+<!-- Menu -->
+<nav class="bg-blue-100 py-4 shadow-md">
+    <div class="container mx-auto px-4">
+        <ul class="flex justify-around items-center">
+            <li>
+                <a href="#" data-category="Planes" class="flex justify-center items-center text-blue-600 hover:text-blue-800 w-16 h-16">
+                    <span class="material-icons text-3xl pointer-events-none">menu_book</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" data-category="Hojas" class="flex justify-center items-center text-blue-600 hover:text-blue-800 w-16 h-16">
+                    <span class="material-icons text-3xl pointer-events-none">assignment</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" data-category="Instrumentos" class="flex justify-center items-center text-blue-600 hover:text-blue-800 w-16 h-16">
+                    <span class="material-icons text-3xl pointer-events-none">checklist</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" data-category="Docs" class="flex justify-center items-center text-blue-600 hover:text-blue-800 w-16 h-16">
+                    <span class="material-icons text-3xl pointer-events-none">newspaper</span>
+                </a>
+            </li>
+            <li>
+                <a href="buscador.html" class="flex justify-center items-center text-blue-600 hover:text-blue-800 w-16 h-16">
+                    <span class="material-icons text-3xl pointer-events-none">search</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
 
-    <!-- Menu -->
-    <nav class="bg-blue-100 py-4 shadow-md">
-        <div class="container mx-auto px-4">
-            <ul class="flex justify-around items-center">
-                <li>
-                    <a href="#" data-category="Planes" class="flex justify-center items-center text-blue-600 hover:text-blue-800 w-16 h-16">
-                        <span class="material-icons text-3xl pointer-events-none">menu_book</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" data-category="Hojas" class="flex justify-center items-center text-blue-600 hover:text-blue-800 w-16 h-16">
-                        <span class="material-icons text-3xl pointer-events-none">assignment</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" data-category="Instrumentos" class="flex justify-center items-center text-blue-600 hover:text-blue-800 w-16 h-16">
-                        <span class="material-icons text-3xl pointer-events-none">checklist</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" data-category="Docs" class="flex justify-center items-center text-blue-600 hover:text-blue-800 w-16 h-16">
-                        <span class="material-icons text-3xl pointer-events-none">newspaper</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="buscador.html" class="flex justify-center items-center text-blue-600 hover:text-blue-800 w-16 h-16">
-                        <span class="material-icons text-3xl pointer-events-none">search</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+
 
     <!-- Main Content -->
     <main class="container mx-auto mt-8 px-4">
@@ -108,12 +105,6 @@
                     type="url" 
                     class="w-full border border-gray-300 rounded p-3 mb-4 focus:outline-none focus:ring focus:ring-blue-300" 
                     placeholder="Añadir un enlace de descarga (opcional)"
-                />
-                <input 
-                    type="url" 
-                    id="pinInput" 
-                    class="w-full border border-gray-300 rounded p-3 mb-4 focus:outline-none focus:ring focus:ring-blue-300" 
-                    placeholder="Añadir un enlace de un pin de Pinterest (opcional)"
                 />
                 <button 
                     type="submit" 
@@ -166,8 +157,68 @@
         </div>
     </footer>
 
-   
-	
-<script async defer src="//assets.pinterest.com/js/pinit.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const currentUser = Parse.User.current();
+            const postFormSection = document.getElementById("postFormSection");
+            const authButtons = document.getElementById("authButtons");
+            const userDisplay = document.getElementById("userDisplay");
+            const accessRequestDiv = document.getElementById("accessRequestDiv");
+            const loginModal = document.getElementById("loginModal");
+            const closeModal = document.getElementById("closeModal");
+            const modalLogInForm = document.getElementById("modalLogInForm");
+
+            if (currentUser) {
+                // Mostrar formulario de publicación si está autenticado
+                postFormSection.classList.remove("hidden");
+
+                // Mostrar nombre del usuario actual
+                userDisplay.textContent = `Bienvenido, ${currentUser.get("username") || "Usuario"}`;
+                userDisplay.classList.remove("hidden");
+
+                // Ocultar el div de solicitar acceso
+                accessRequestDiv.classList.add("hidden");
+
+                // Botón de cerrar sesión
+                authButtons.innerHTML = `
+                    <li><button id="logOutButton" class="hover:underline bg-transparent border-none cursor-pointer">
+                        <span class="material-icons mr-1">logout</span>
+                    </button></li>`;
+
+                // Evento de cerrar sesión
+                document.getElementById("logOutButton").addEventListener("click", (event) => {
+                    event.preventDefault();
+                    logOut();
+                });
+            } else {
+                // Botón de iniciar sesión
+                authButtons.innerHTML = `
+                    <li><button id="logInButton" class="hover:underline bg-transparent border-none cursor-pointer">
+                        <span class="material-icons mr-1">login</span>Iniciar Sesión
+                    </button></li>`;
+
+                // Mostrar modal de inicio de sesión
+                document.getElementById("logInButton").addEventListener("click", () => {
+                    loginModal.style.display = "flex";
+                });
+
+                // Manejar cierre del modal
+                closeModal.addEventListener("click", () => {
+                    loginModal.style.display = "none";
+                });
+
+                // Manejar inicio de sesión desde el modal
+                modalLogInForm.addEventListener("submit", (event) => {
+                    event.preventDefault();
+                    const username = modalLogInForm.querySelector("input[name='username']").value;
+                    const password = modalLogInForm.querySelector("input[name='password']").value;
+                    if (username && password) {
+                        logIn(username, password);
+                        loginModal.style.display = "none";
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
