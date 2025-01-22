@@ -9,8 +9,15 @@ function showNotification(message, type = "success") {
     setTimeout(() => notification.remove(), 3000);
 }
 
+// Extraer hashtags del contenido
+function extractHashtags(content) {
+    const hashtagRegex = /#(\w+)/g;
+    const matches = content.match(hashtagRegex);
+    return matches ? matches.map((tag) => tag.slice(1)) : [];
+}
+
 // Función para crear un post
-async function createPost(content, link, category) {
+async function createPost(content, link, pin, category) {
     if (typeof Parse === "undefined") {
         console.error("Parse no está inicializado. Verifica el CDN.");
         showNotification("Error interno del sistema.", "error");
@@ -31,6 +38,7 @@ async function createPost(content, link, category) {
 
     post.set("content", content);
     post.set("link", link || null);
+    post.set("pin", pin || null); // Guardar el enlace del pin de Pinterest
     post.set("category", mainCategory);
     post.set("hashtags", hashtags);
     post.set("likes", 0);
@@ -47,6 +55,7 @@ async function createPost(content, link, category) {
             <div class="post bg-white p-4 rounded shadow-md">
                 <p>${content}</p>
                 ${link ? `<a href="${link}" target="_blank" class="text-blue-600 underline">Descargar</a>` : ""}
+                ${pin ? `<div class="mt-4"><iframe src="${pin}" width="100%" height="300px" style="border:none;"></iframe></div>` : ""}
                 <p class="text-sm text-gray-500 mt-2">Categoría: ${mainCategory}</p>
             </div>
         `;
@@ -57,13 +66,6 @@ async function createPost(content, link, category) {
     }
 }
 
-// Extraer hashtags del contenido
-function extractHashtags(content) {
-    const hashtagRegex = /#(\w+)/g;
-    const matches = content.match(hashtagRegex);
-    return matches ? matches.map((tag) => tag.slice(1)) : [];
-}
-
 // Manejar el evento del formulario
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.querySelector("form");
@@ -72,6 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const content = form.querySelector("textarea").value.trim();
         const link = form.querySelector("input[type='url']").value.trim();
+        const pin = form.querySelector("#pinInput").value.trim();
         const category = "General";
 
         if (!content) {
@@ -79,6 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        createPost(content, link, category);
+        createPost(content, link, pin, category);
     });
 });
