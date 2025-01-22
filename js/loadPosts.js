@@ -57,11 +57,10 @@ function renderPosts(posts) {
         const postElement = document.createElement("article");
         postElement.className = "bg-white p-6 rounded shadow-md mb-6 border border-gray-200";
 
-        // Convertir pin corto al formato de Pinterest embebible
+        // Si el pin existe, incrustar el iframe de Pinterest
         let pinEmbed = "";
         if (pin) {
-            const pinId = pin.split('/').pop(); // Extraer el ID del pin
-            const embedUrl = `https://www.pinterest.com/pin/${pinId}/`; // Construir el enlace embebible
+            const embedUrl = pin.replace('https://pin.it/', 'https://www.pinterest.com/pin/');
             pinEmbed = `
                 <div class="mt-4">
                     <a href="${embedUrl}" data-pin-do="embedPin" data-pin-width="large"></a>
@@ -86,6 +85,8 @@ function renderPosts(posts) {
     // Inicializar el script de Pinterest para renderizar pines
     if (typeof PinUtils !== "undefined") {
         PinUtils.build();
+    } else {
+        console.error("Pinterest script (PinUtils) no está cargado correctamente.");
     }
 }
 
