@@ -35,7 +35,7 @@ async function fetchPosts(page = 0, limit = 10, category = null) {
     }
 }
 
-// Función para renderizar los posts visibles
+
 function renderPosts(posts) {
     const postsContainer = document.getElementById("posts");
 
@@ -50,42 +50,46 @@ function renderPosts(posts) {
         const category = post.get("category");
         const createdAt = post.createdAt;
         const author = post.get("author");
-        const pin = post.get("pin"); // Obtener el pin del post
+        const image = post.get("image"); // URL de la imagen almacenada en la columna 'image'
 
         const authorName = author ? author.get("username") || "Autor desconocido" : "Autor desconocido";
 
         const postElement = document.createElement("article");
         postElement.className = "bg-white p-6 rounded shadow-md mb-6 border border-gray-200";
 
-        // Si el pin existe, incrustar el iframe de Pinterest
-        let pinEmbed = "";
-        if (pin) {
-            pinEmbed = `
+        // Si hay una imagen, incluirla en el diseño
+        let imageEmbed = "";
+        if (image) {
+            imageEmbed = `
                 <div class="mt-4">
-                    <a href="${pin}" data-pin-do="embedPin" data-pin-width="large"></a>
+                    <img src="${image}" alt="Imagen del post" class="w-full rounded-lg shadow-md">
                 </div>
             `;
         }
 
         postElement.innerHTML = `
             <div class="flex justify-between items-center">
-                <h3 class="text-lg font-semibold"><span class="material-icons mr-2">account_circle</span>${authorName}</h3>
-                <span class="text-gray-500 text-sm"><span class="material-icons mr-1">schedule</span>${new Date(createdAt).toLocaleString()}</span>
+                <h3 class="text-lg font-semibold">
+                    <span class="material-icons mr-2">account_circle</span>${authorName}
+                </h3>
+                <span class="text-gray-500 text-sm">
+                    <span class="material-icons mr-1">schedule</span>${new Date(createdAt).toLocaleString()}
+                </span>
             </div>
             <p class="mt-2 text-gray-700">${content}</p>
+            ${imageEmbed}
             ${link ? `<a href="${link}" class="text-blue-600 hover:underline"><span class="material-icons mr-1">link</span>Enlace</a>` : ""}
-            ${pinEmbed}
             <p class="text-sm text-gray-500 mt-1">Categoría: <span class="text-blue-600">${category}</span></p>
         `;
 
         postsContainer.appendChild(postElement);
     });
-
-    // Inicializar el script de Pinterest para renderizar pines
-    if (typeof PinUtils !== "undefined") {
-        PinUtils.build();
-    }
 }
+
+
+
+
+
 
 // Función para cargar más posts
 async function loadMorePosts(category = null) {
