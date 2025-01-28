@@ -63,23 +63,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const searchInput = document.getElementById("searchInput");
     const resultsContainer = document.getElementById("resultsContainer");
 
-    // Verificar autenticación del usuario
-    const currentUser = Parse.User.current();
-    if (!currentUser) {
-        resultsContainer.innerHTML = `
-            <p class='text-red-500'>Debes iniciar sesión para buscar publicaciones.</p>
-        `;
-        searchForm.style.display = "none";
-
-        // Redirigir al índice después de un breve mensaje
-        setTimeout(() => {
-            window.location.href = "index.html";
-        }, 3000);
-        return;
-    }
-
-    console.log(`Usuario autenticado: ${currentUser.get("username")}`);
-
     if (searchForm) {
         searchForm.addEventListener("submit", async (event) => {
             event.preventDefault();
