@@ -7,9 +7,9 @@ async function fetchPostsByCategory(category) {
 
     const Post = Parse.Object.extend("Post");
     const query = new Parse.Query(Post);
-    query.equalTo("category", category); // Filtrar por categoría (sin hashtag)
+    query.equalTo("category", category); // Filtrar por categoría
     query.descending("createdAt"); // Ordenar por fecha de creación
-    query.include("author"); // Incluir información del autor (username)
+    query.include("author"); // Incluir información del autor
 
     try {
         const posts = await query.find();
@@ -32,23 +32,39 @@ function renderPosts(posts, clearExisting = false) {
     posts.forEach((post) => {
         // Crear elementos HTML para el post
         const postElement = document.createElement("article");
-        postElement.className = "bg-white p-6 rounded shadow-md mb-6";
+        postElement.className = "bg-white p-6 rounded shadow-md mb-6 border border-gray-200";
 
         const content = post.get("content");
         const link = post.get("link");
         const category = post.get("category");
         const createdAt = post.createdAt;
         const author = post.get("author");
+        const image = post.get("image"); // Obtener la URL de la imagen
 
         // Verificar si el autor existe y obtener su username
         const authorName = author ? author.get("username") || "Autor desconocido" : "Autor desconocido";
 
+        // Si hay una imagen, incluirla en el diseño
+        let imageEmbed = "";
+        if (image) {
+            imageEmbed = `
+                <div class="mt-4">
+                    <img src="${image}" alt="Imagen del post" class="w-32 rounded-lg shadow-md">
+                </div>
+            `;
+        }
+
         postElement.innerHTML = `
             <div class="flex justify-between items-center">
-                <h3 class="text-lg font-semibold"><span class="material-icons mr-2">account_circle</span>${authorName}</h3>
-                <span class="text-gray-500 text-sm"><span class="material-icons mr-1">schedule</span>${new Date(createdAt).toLocaleString()}</span>
+                <h3 class="text-lg font-semibold">
+                    <span class="material-icons mr-2">account_circle</span>${authorName}
+                </h3>
+                <span class="text-gray-500 text-sm">
+                    <span class="material-icons mr-1">schedule</span>${new Date(createdAt).toLocaleString()}
+                </span>
             </div>
             <p class="mt-2 text-gray-700">${content}</p>
+            ${imageEmbed}
             ${link ? `<a href="${link}" class="text-blue-600 hover:underline"><span class="material-icons mr-1">link</span>Enlace</a>` : ""}
             <p class="text-sm text-gray-500 mt-1">Categoría: <span class="text-blue-600">${category}</span></p>
             <div class="flex space-x-4 mt-4">
