@@ -49,7 +49,7 @@ function renderPosts(posts, clearExisting = false) {
         if (image) {
             imageEmbed = `
                 <div class="mt-4">
-                    <img src="${image}" alt="Imagen del post" class="w-30 rounded-lg shadow-md">
+                    <img src="${image}" alt="Imagen del post" class="w-36 rounded-lg shadow-md">
                 </div>
             `;
         }
