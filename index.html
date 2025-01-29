@@ -12,7 +12,10 @@
     <script src="js/authentication.js"></script>
 	<script src="js/postHandler.js"></script>
 	<script src="js/search.js"></script>
+	<script src="js/modals.js"></script>
 	<script src="https://cdn.tailwindcss.com"></script>
+	 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+
     <style>
         /* Estilos del modal */
         #loginModal {
@@ -40,7 +43,7 @@
     <!-- Header -->
     <header class="bg-blue-600 text-white py-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center px-4">
-            <h1 class="text-2xl font-bold">
+            <h1 data-aos="fade-down" class="text-2xl font-bold">
                 <span class="material-icons mr-2">school</span>
                 NicaHub
             </h1>
@@ -90,7 +93,7 @@
     <!-- Main Content -->
     <main class="container mx-auto mt-8 px-4">
         <!-- Post Form -->
-        <section id="postFormSection" class="mb-8 hidden">
+        <section data-aos="zoom-in" id="postFormSection" class="mb-8 hidden">
             <form class="bg-white p-6 rounded shadow-md">
                 <h2 class="text-xl font-semibold mb-4">
                     <span class="material-icons mr-2">edit</span>
@@ -132,7 +135,7 @@
         </section>
 
         <!-- Posts -->
-        <section id="posts" class="space-y-4">
+        <section data-aos="fade-up" id="posts" class="space-y-4">
             <!-- Los posts se cargarán aquí dinámicamente -->
         </section>
     </main>
@@ -157,68 +160,11 @@
         </div>
     </footer>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const currentUser = Parse.User.current();
-            const postFormSection = document.getElementById("postFormSection");
-            const authButtons = document.getElementById("authButtons");
-            const userDisplay = document.getElementById("userDisplay");
-            const accessRequestDiv = document.getElementById("accessRequestDiv");
-            const loginModal = document.getElementById("loginModal");
-            const closeModal = document.getElementById("closeModal");
-            const modalLogInForm = document.getElementById("modalLogInForm");
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script>
+    AOS.init(); // Inicializa AOS
+</script>
 
-            if (currentUser) {
-                // Mostrar formulario de publicación si está autenticado
-                postFormSection.classList.remove("hidden");
-
-                // Mostrar nombre del usuario actual
-                userDisplay.textContent = `Bienvenido, ${currentUser.get("username") || "Usuario"}`;
-                userDisplay.classList.remove("hidden");
-
-                // Ocultar el div de solicitar acceso
-                accessRequestDiv.classList.add("hidden");
-
-                // Botón de cerrar sesión
-                authButtons.innerHTML = `
-                    <li><button id="logOutButton" class="hover:underline bg-transparent border-none cursor-pointer">
-                        <span class="material-icons mr-1">logout</span>
-                    </button></li>`;
-
-                // Evento de cerrar sesión
-                document.getElementById("logOutButton").addEventListener("click", (event) => {
-                    event.preventDefault();
-                    logOut();
-                });
-            } else {
-                // Botón de iniciar sesión
-                authButtons.innerHTML = `
-                    <li><button id="logInButton" class="hover:underline bg-transparent border-none cursor-pointer">
-                        <span class="material-icons mr-1">login</span>Iniciar Sesión
-                    </button></li>`;
-
-                // Mostrar modal de inicio de sesión
-                document.getElementById("logInButton").addEventListener("click", () => {
-                    loginModal.style.display = "flex";
-                });
-
-                // Manejar cierre del modal
-                closeModal.addEventListener("click", () => {
-                    loginModal.style.display = "none";
-                });
-
-                // Manejar inicio de sesión desde el modal
-                modalLogInForm.addEventListener("submit", (event) => {
-                    event.preventDefault();
-                    const username = modalLogInForm.querySelector("input[name='username']").value;
-                    const password = modalLogInForm.querySelector("input[name='password']").value;
-                    if (username && password) {
-                        logIn(username, password);
-                        loginModal.style.display = "none";
-                    }
-                });
-            }
-        });
-    </script>
 </body>
 </html>
