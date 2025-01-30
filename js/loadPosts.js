@@ -35,13 +35,14 @@ async function fetchPosts(page = 0, limit = 10, category = null) {
     }
 }
 
-
+// Función para renderizar posts
 function renderPosts(posts) {
     const postsContainer = document.getElementById("posts");
 
     // Eliminar posts fuera del límite
     while (postsContainer.childNodes.length > maxPostsInDOM) {
         postsContainer.removeChild(postsContainer.firstChild);
+        loadedPosts.shift();  // Elimina la primera publicación en el array
     }
 
     posts.forEach((post) => {
@@ -50,7 +51,7 @@ function renderPosts(posts) {
         const category = post.get("category");
         const createdAt = post.createdAt;
         const author = post.get("author");
-        const image = post.get("image"); // URL de la imagen almacenada en la columna 'image'
+        const image = post.get("image");
 
         const authorName = author ? author.get("username") || "Autor desconocido" : "Autor desconocido";
 
@@ -68,7 +69,7 @@ function renderPosts(posts) {
         }
 
         postElement.innerHTML = `
-            <div class="flex justify-between items-center">
+            <div data-aos="fade-up" class="flex justify-between items-center">
                 <h3 class="text-lg font-semibold">
                     <span class="material-icons mr-2">account_circle</span>${authorName}
                 </h3>
@@ -86,18 +87,19 @@ function renderPosts(posts) {
     });
 }
 
-
-
-
-
-
 // Función para cargar más posts
 async function loadMorePosts(category = null) {
-    if (isLoading) return;
+    if (isLoading || (category !== currentCategory && loadedPosts.length >= maxPostsInDOM)) return;
 
     if (category !== currentCategory) {
         currentPage = 0;
         currentCategory = category;
+        // Verifica si ya se han cargado posts para esa categoría
+        const existingPosts = loadedPosts.filter(post => post.get("category") === category);
+        if (existingPosts.length > 0) {
+            renderPosts(existingPosts);
+            return;
+        }
         loadedPosts = []; // Reiniciar la caché
         document.getElementById("posts").innerHTML = ""; // Limpiar DOM
     }
@@ -105,21 +107,28 @@ async function loadMorePosts(category = null) {
     isLoading = true;
     showLoadingIndicator(true);
 
-    const posts = await fetchPosts(currentPage, postsPerPage, category);
-    loadedPosts = loadedPosts.concat(posts);
-
-    renderPosts(posts); // Renderiza solo los nuevos posts
-    currentPage++;
-
-    showLoadingIndicator(false);
-    isLoading = false;
+    try {
+        const posts = await fetchPosts(currentPage, postsPerPage, category);
+        loadedPosts = loadedPosts.concat(posts);
+        renderPosts(posts);
+        currentPage++;
+    } catch (error) {
+        console.error("Error al cargar más posts:", error);
+    } finally {
+        showLoadingIndicator(false);
+        isLoading = false;
+    }
 }
 
-// Detectar desplazamiento para carga infinita
+// Detectar desplazamiento para carga infinita con debounce
+let debounceTimer;
 window.addEventListener("scroll", () => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 && !isLoading) {
-        loadMorePosts(currentCategory);
-    }
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 && !isLoading) {
+            loadMorePosts(currentCategory);
+        }
+    }, 150);
 });
 
 // Detectar clics en enlaces de categorías
@@ -133,6 +142,7 @@ document.addEventListener("click", (event) => {
 
 // Cargar los primeros posts al cargar la página
 document.addEventListener("DOMContentLoaded", () => {
-    // Permitir cargar posts para cualquier usuario (autenticado o no)
-    loadMorePosts();
+    if (loadedPosts.length === 0) {
+        loadMorePosts();
+    }
 });
