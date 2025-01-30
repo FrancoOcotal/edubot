@@ -1,170 +1,148 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NicaHub: Recursos para docentes de Nicaragua</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/parse/3.4.4/parse.min.js"></script>
-    <script src="js/parserConfig.js"></script>
-    <script src="js/loadPosts.js"></script>
-    <script src="js/category_filter.js"></script>
-    <script src="js/authentication.js"></script>
-	<script src="js/postHandler.js"></script>
-	<script src="js/search.js"></script>
-	<script src="js/modals.js"></script>
-	<script src="https://cdn.tailwindcss.com"></script>
-	 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+let currentPage = 0;
+const postsPerPage = 10;
+let isLoading = false; // Previene múltiples solicitudes simultáneas
+let currentCategory = null; // Almacena la categoría actual para el filtrado
+let loadedPosts = []; // Almacena posts cargados en memoria
+const maxPostsInDOM = 30; // Máximo de posts permitidos en el DOM
 
-    <style>
-        /* Estilos del modal */
-        #loginModal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
+// Indicador de carga
+function showLoadingIndicator(show) {
+    const loadingIndicator = document.getElementById("loadingIndicator");
+    if (loadingIndicator) {
+        loadingIndicator.style.display = show ? "block" : "none";
+    }
+}
+
+// Función para obtener posts desde Back4App
+async function fetchPosts(page = 0, limit = 10, category = null) {
+    const Post = Parse.Object.extend("Post");
+    const query = new Parse.Query(Post);
+
+    query.descending("createdAt");
+    query.limit(limit);
+    query.skip(page * limit);
+    query.include("author");
+
+    if (category) {
+        query.equalTo("category", category);
+    }
+
+    try {
+        return await query.find();
+    } catch (error) {
+        console.error("Error al cargar los posts:", error);
+        return [];
+    }
+}
+
+// Función para renderizar posts
+function renderPosts(posts) {
+    const postsContainer = document.getElementById("posts");
+
+    // Eliminar posts fuera del límite
+    while (postsContainer.childNodes.length > maxPostsInDOM) {
+        postsContainer.removeChild(postsContainer.firstChild);
+        loadedPosts.shift();  // Elimina la primera publicación en el array
+    }
+
+    posts.forEach((post) => {
+        const content = post.get("content");
+        const link = post.get("link");
+        const category = post.get("category");
+        const createdAt = post.createdAt;
+        const author = post.get("author");
+        const image = post.get("image");
+
+        const authorName = author ? author.get("username") || "Autor desconocido" : "Autor desconocido";
+
+        const postElement = document.createElement("article");
+        postElement.className = "bg-white p-6 rounded shadow-md mb-6 border border-gray-200";
+
+        // Si hay una imagen, incluirla en el diseño
+        let imageEmbed = "";
+        if (image) {
+            imageEmbed = `
+                <div class="mt-4">
+                    <img src="${image}" alt="Imagen del post" class="w-36 rounded-lg shadow-md">
+                </div>
+            `;
         }
-        #loginModal .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 400px;
-        }
-    </style>
-</head>
-<body class="bg-blue-50 min-h-screen">
-    <!-- Header -->
-    <header class="bg-blue-600 text-white py-4 shadow-md">
-        <div class="container mx-auto flex justify-between items-center px-4">
-            <h1 data-aos="fade-down" class="text-2xl font-bold">
-                <span class="material-icons mr-2">school</span>
-                NicaHub
-            </h1>
-            <nav>
-                <ul class="flex space-x-4" id="authButtons">
-                    <!-- Botones dinámicos según autenticación -->
-                </ul>
-                <span id="userDisplay" class="hidden text-sm font-semibold"></span>
-            </nav>
-        </div>
-    </header>
-<!-- Menu -->
-<nav class="bg-blue-100 py-4 shadow-md">
-    <div class="container mx-auto px-4">
-        <ul class="flex justify-around items-center">
-            <li>
-                <a href="#" data-category="Planes" class="flex justify-center items-center text-blue-600 hover:text-blue-800 w-16 h-16">
-                    <span class="material-icons text-3xl pointer-events-none">menu_book</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" data-category="Hojas" class="flex justify-center items-center text-blue-600 hover:text-blue-800 w-16 h-16">
-                    <span class="material-icons text-3xl pointer-events-none">assignment</span>
-                </a>
-            </li>
-            <li>
-                <a href="games/index.html"  class="flex justify-center items-center text-blue-600 hover:text-blue-800 w-16 h-16">
-                    <span class="material-icons text-3xl pointer-events-none">game</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" data-category="Docs" class="flex justify-center items-center text-blue-600 hover:text-blue-800 w-16 h-16">
-                    <span class="material-icons text-3xl pointer-events-none">newspaper</span>
-                </a>
-            </li>
-            <li>
-                <a href="buscador.html" class="flex justify-center items-center text-blue-600 hover:text-blue-800 w-16 h-16">
-                    <span class="material-icons text-3xl pointer-events-none">search</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-</nav>
 
-
-
-    <!-- Main Content -->
-    <main class="container mx-auto mt-8 px-4">
-        <!-- Post Form -->
-        <section data-aos="zoom-in" id="postFormSection" class="mb-8 hidden">
-            <form class="bg-white p-6 rounded shadow-md">
-                <h2 class="text-xl font-semibold mb-4">
-                    <span class="material-icons mr-2">edit</span>
-                    Crear Publicación
-                </h2>
-                <textarea 
-                    class="w-full border border-gray-300 rounded p-3 mb-4 focus:outline-none focus:ring focus:ring-blue-300" 
-                    rows="4" 
-                    placeholder="Escribe algo..."
-                ></textarea>
-                <input 
-                    type="url" 
-                    class="w-full border border-gray-300 rounded p-3 mb-4 focus:outline-none focus:ring focus:ring-blue-300" 
-                    placeholder="Añadir un enlace de descarga (opcional)"
-                />
-                <button 
-                    type="submit" 
-                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300"
-                >
-                    <span class="material-icons mr-2">send</span>Publicar
-                </button>
-            </form>
-        </section>
-
-        <!-- WhatsApp Contact Button -->
-        <section id="accessRequestDiv" class="mb-8">
-            <div class="bg-white p-6 rounded shadow-md">
-                <h2 class="text-xl font-semibold mb-4">
-                    <span class="material-icons mr-2">contact_support</span>
-                    Solicitar Acceso
-                </h2>
-                <a href="https://wa.me/50589073669?text=Hola,%20quiero%20solicitar%20acceso%20para%20publicar%20contenido%20en%20la%20Red%20Social%20para%20Docentes." 
-                   class="bg-green-500 text-white px-4 py-2 rounded flex items-center justify-center space-x-2 hover:bg-green-600 focus:outline-none focus:ring focus:ring-green-300" 
-                   target="_blank">
-                    <span class="material-icons">whatsapp</span>
-                    <span>Solicitar acceso para publicar contenido</span>
-                </a>
+        postElement.innerHTML = `
+            <div data-aos="fade-up" class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold">
+                    <span class="material-icons mr-2">account_circle</span>${authorName}
+                </h3>
+                <span class="text-gray-500 text-sm">
+                    <span class="material-icons mr-1">schedule</span>${new Date(createdAt).toLocaleString()}
+                </span>
             </div>
-        </section>
+            <p class="mt-2 text-gray-700">${content}</p>
+            ${imageEmbed}
+            ${link ? `<a href="${link}" class="text-blue-600 hover:underline"><span class="material-icons mr-1">link</span>Enlace</a>` : ""}
+            <p class="text-sm text-gray-500 mt-1">Categoría: <span class="text-blue-600">${category}</span></p>
+        `;
 
-        <!-- Posts -->
-        <section data-aos="fade-up" id="posts" class="space-y-4">
-            <!-- Los posts se cargarán aquí dinámicamente -->
-        </section>
-    </main>
+        postsContainer.appendChild(postElement);
+    });
+}
 
-    <!-- Modal de inicio de sesión -->
-    <div id="loginModal" class="flex">
-        <div class="modal-content">
-            <h2 class="text-xl font-semibold mb-4">Iniciar Sesión</h2>
-            <form id="modalLogInForm">
-                <input type="text" name="username" placeholder="Usuario" class="w-full border border-gray-300 rounded p-3 mb-4" required>
-                <input type="password" name="password" placeholder="Contraseña" class="w-full border border-gray-300 rounded p-3 mb-4" required>
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Iniciar Sesión</button>
-            </form>
-            <button id="closeModal" class="mt-4 text-red-600 hover:underline">Cerrar</button>
-        </div>
-    </div>
+// Función para cargar más posts
+async function loadMorePosts(category = null) {
+    if (isLoading || (category !== currentCategory && loadedPosts.length >= maxPostsInDOM)) return;
 
-    <!-- Footer -->
-    <footer class="bg-blue-600 text-white py-4 mt-8">
-        <div class="container mx-auto text-center">
-            <p>&copy; 2025 Red Social para Docentes. Todos los derechos reservados.</p>
-        </div>
-    </footer>
+    if (category !== currentCategory) {
+        currentPage = 0;
+        currentCategory = category;
+        // Verifica si ya se han cargado posts para esa categoría
+        const existingPosts = loadedPosts.filter(post => post.get("category") === category);
+        if (existingPosts.length > 0) {
+            renderPosts(existingPosts);
+            return;
+        }
+        loadedPosts = []; // Reiniciar la caché
+        document.getElementById("posts").innerHTML = ""; // Limpiar DOM
+    }
 
-    
-<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-<script>
-    AOS.init(); // Inicializa AOS
-</script>
+    isLoading = true;
+    showLoadingIndicator(true);
 
-</body>
-</html>
+    try {
+        const posts = await fetchPosts(currentPage, postsPerPage, category);
+        loadedPosts = loadedPosts.concat(posts);
+        renderPosts(posts);
+        currentPage++;
+    } catch (error) {
+        console.error("Error al cargar más posts:", error);
+    } finally {
+        showLoadingIndicator(false);
+        isLoading = false;
+    }
+}
+
+// Detectar desplazamiento para carga infinita con debounce
+let debounceTimer;
+window.addEventListener("scroll", () => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 && !isLoading) {
+            loadMorePosts(currentCategory);
+        }
+    }, 150);
+});
+
+// Detectar clics en enlaces de categorías
+document.addEventListener("click", (event) => {
+    if (event.target.dataset.category) {
+        event.preventDefault();
+        const category = event.target.dataset.category;
+        loadMorePosts(category);
+    }
+});
+
+// Cargar los primeros posts al cargar la página
+document.addEventListener("DOMContentLoaded", () => {
+    if (loadedPosts.length === 0) {
+        loadMorePosts();
+    }
+});
