@@ -37,7 +37,7 @@ h1 {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
 }
 
 #question-image {
@@ -45,14 +45,14 @@ h1 {
     max-width: 200px;
     height: auto;
     border-radius: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
 #question {
     font-size: 1.6em;
     color: ; /* Azul más profundo */
-    margin-bottom: 15px;
+    margin-bottom: 5px;
     font-weight: bold;
 }
 
