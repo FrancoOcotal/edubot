@@ -1,8 +1,8 @@
 const questions = [
-    { image: 'dog.png', question: 'What is this word?', answers: ['Dog', 'Cat', 'Rabbit'], correct: 'Dog' },
-    { image: 'cat.png', question: 'What is this word?', answers: ['Rabbit', 'Cat', 'Dog'], correct: 'Cat' },
-    { image: 'rabbit.png', question: 'What is this word?', answers: ['Cat', 'Rabbit', 'Dog'], correct: 'Rabbit' },
-    { image: 'ostrich.png', question: 'What is this word?', answers: ['Ostrich', 'Elephant', 'Owl'], correct: 'Ostrich' },
-    { image: 'owl.png', question: 'What is this word?', answers: ['Elephant', 'Owl', 'Ostrich'], correct: 'Owl' },
-    { image: 'elephant.png', question: 'What is this word?', answers: ['Dog', 'Elephant', 'Rabbit'], correct: 'Elephant' }
+    { image: 'dad.png', question: 'Who is this?', answers: ['Dad', 'Mom', 'Brother'], correct: 'Dad' },
+    { image: 'mom.png', question: 'Who is this?', answers: ['Sister', 'Mom', 'Grandma'], correct: 'Mom' },
+    { image: 'grandpa.png', question: 'Who is this?', answers: ['Grandpa', 'Brother', 'Dad'], correct: 'Grandpa' },
+    { image: 'grandma.png', question: 'Who is this?', answers: ['Mom', 'Grandma', 'Sister'], correct: 'Grandma' },
+    { image: 'sister.png', question: 'Who is this?', answers: ['Brother', 'Sister', 'Mom'], correct: 'Sister' },
+    { image: 'brother.png', question: 'Who is this?', answers: ['Dad', 'Grandpa', 'Brother'], correct: 'Brother' }
 ];
