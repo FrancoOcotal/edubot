@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Style Game</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/PointerLockControls.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        #startButton { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 10px 20px; font-size: 20px; }
+        .controls { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; }
+        .control-button { width: 50px; height: 50px; font-size: 20px; background: rgba(0, 0, 0, 0.5); color: white; border: none; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <button id="startButton">Start Game</button>
+    <div class="controls">
+        <button class="control-button" id="moveForward">F</button>
+        <button class="control-button" id="moveBackward">B</button>
+        <button class="control-button" id="moveLeft">L</button>
+        <button class="control-button" id="moveRight">R</button>
+    </div>
+    <script>
+        let scene, camera, renderer, controls;
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+        const speed = 0.1;
+        let collidableObjects = [];
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+            
+            controls = new THREE.PointerLockControls(camera, document.body);
+            document.getElementById('startButton').addEventListener('click', () => {
+                controls.lock();
+                document.getElementById('startButton').style.display = 'none';
+            });
+
+            scene.add(controls.getObject());
+            addFloor();
+            addSchool();
+            addBank();
+            addHouse();
+            addChairs();
+            
+            camera.position.y = 1.5;
+            setupControls();
+            setupTouchControls();
+            animate();
+        }
+
+        function setupTouchControls() {
+            document.getElementById('moveForward').addEventListener('touchstart', () => moveForward = true);
+            document.getElementById('moveForward').addEventListener('touchend', () => moveForward = false);
+            document.getElementById('moveBackward').addEventListener('touchstart', () => moveBackward = true);
+            document.getElementById('moveBackward').addEventListener('touchend', () => moveBackward = false);
+            document.getElementById('moveLeft').addEventListener('touchstart', () => moveLeft = true);
+            document.getElementById('moveLeft').addEventListener('touchend', () => moveLeft = false);
+            document.getElementById('moveRight').addEventListener('touchstart', () => moveRight = true);
+            document.getElementById('moveRight').addEventListener('touchend', () => moveRight = false);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            let newPosition = controls.getObject().position.clone();
+            if (moveForward) newPosition.z -= speed;
+            if (moveBackward) newPosition.z += speed;
+            if (moveLeft) newPosition.x -= speed;
+            if (moveRight) newPosition.x += speed;
+
+            if (!checkCollisions(newPosition)) {
+                controls.getObject().position.copy(newPosition);
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+
+        init();
+    </script>
+</body>
+</html>
