@@ -207,6 +207,11 @@ function setupTouchControls() {
         button.style.borderRadius = '50%';
         button.style.background = 'rgba(0, 0, 0, 0.5)';
         button.style.color = 'white';
+		 button.style.userSelect = 'none';
+        button.style.webkitUserSelect = 'none';
+        button.style.mozUserSelect = 'none';
+        button.style.msUserSelect = 'none';
+        button.style.touchAction = 'none';
         button.addEventListener('touchstart', actionStart);
         button.addEventListener('touchend', actionEnd);
         return button;
