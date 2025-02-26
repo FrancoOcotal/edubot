@@ -24,6 +24,9 @@ function init() {
     addBank();
     addHouse();
     addChairs();
+	addTrees();
+    addCars();
+    addNPCs();
     
     camera.position.y = 2;
     setupControls();
@@ -87,6 +90,71 @@ function addChairs() {
         collidableObjects.push(chair);
     }
 }
+
+function addTrees() {
+    for (let i = -30; i <= 30; i += 15) {
+        let trunk = new THREE.Mesh(
+            new THREE.CylinderGeometry(1, 1, 6, 8),
+            new THREE.MeshStandardMaterial({ color: 0x8B4513 })
+        );
+        trunk.position.set(i, 3, -30);
+        scene.add(trunk);
+        
+        let leaves = new THREE.Mesh(
+            new THREE.SphereGeometry(4, 8, 8),
+            new THREE.MeshStandardMaterial({ color: 0x228B22 })
+        );
+        leaves.position.set(i, 7, -30);
+        scene.add(leaves);
+    }
+}
+
+function addCars() {
+    for (let i = -20; i <= 20; i += 20) {
+        let carBody = new THREE.Mesh(
+            new THREE.BoxGeometry(6, 2, 3),
+            new THREE.MeshStandardMaterial({ color: 0xff0000 })
+        );
+        carBody.position.set(i, 1, 10);
+        scene.add(carBody);
+
+        let carWheels = [];
+        for (let j = -2; j <= 2; j += 4) {
+            for (let k = -1; k <= 1; k += 2) {
+                let wheel = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.5, 0.5, 1, 12),
+                    new THREE.MeshStandardMaterial({ color: 0x000000 })
+                );
+                wheel.rotation.z = Math.PI / 2;
+                wheel.position.set(i + j, 0.5, 10 + k);
+                carWheels.push(wheel);
+                scene.add(wheel);
+            }
+        }
+    }
+}
+
+function addNPCs() {
+    for (let i = -10; i <= 10; i += 10) {
+        let npcBody = new THREE.Mesh(
+            new THREE.BoxGeometry(1, 2, 1),
+            new THREE.MeshStandardMaterial({ color: 0xffff00 })
+        );
+        npcBody.position.set(i, 1, -10);
+        scene.add(npcBody);
+
+        let npcHead = new THREE.Mesh(
+            new THREE.SphereGeometry(0.7, 8, 8),
+            new THREE.MeshStandardMaterial({ color: 0xffcc99 })
+        );
+        npcHead.position.set(i, 2.5, -10);
+        scene.add(npcHead);
+    }
+}
+
+
+
+
 
 function checkCollisions(newPosition) {
     for (let obj of collidableObjects) {
