@@ -161,20 +161,45 @@ function addChairs() {
 }
 
 function addTrees() {
-    for (let i = -30; i <= 30; i += 15) {
+    const occupiedPositions = [
+        { x: -25, z: -40 }, // School
+        { x: 25, z: -40 },  // Bank
+        { x: 0, z: -20 },   // House
+        { x: 10, z: -20 }   // Giraffe
+    ];
+    
+    let treeCount = 0;
+    while (treeCount < 5) {
+        let x = Math.floor(Math.random() * 60) - 30;
+        let z = Math.floor(Math.random() * 60) - 50;
+        
+        let isOccupied = occupiedPositions.some(pos => 
+            Math.abs(pos.x - x) < 10 && Math.abs(pos.z - z) < 10
+        );
+        
+        if (isOccupied) continue;
+        
+        let trunkHeight = Math.random() * 2 + 6; // Randomized height variation
+        
+        // Trunk
         let trunk = new THREE.Mesh(
-            new THREE.CylinderGeometry(1, 1, 6, 8),
+            new THREE.CylinderGeometry(1, 1, trunkHeight, 8),
             new THREE.MeshStandardMaterial({ color: 0x8B4513 })
         );
-        trunk.position.set(i, 3, -30);
+        trunk.position.set(x, trunkHeight / 2, z);
         scene.add(trunk);
         
-        let leaves = new THREE.Mesh(
-            new THREE.SphereGeometry(4, 8, 8),
-            new THREE.MeshStandardMaterial({ color: 0x228B22 })
-        );
-        leaves.position.set(i, 7, -30);
-        scene.add(leaves);
+        // Leaves (Stacked Spheres for Full Tree Effect)
+        for (let j = 0; j < 3; j++) {
+            let leaves = new THREE.Mesh(
+                new THREE.SphereGeometry(4 - j, 8, 8),
+                new THREE.MeshStandardMaterial({ color: 0x228B22 })
+            );
+            leaves.position.set(x, trunkHeight + j * 2, z);
+            scene.add(leaves);
+        }
+        
+        treeCount++;
     }
 }
 
@@ -385,7 +410,7 @@ function setupTouchControls() {
 function setupJoystickControls() {
     const joystickContainer = document.createElement('div');
     joystickContainer.style.position = 'absolute';
-    joystickContainer.style.bottom = '20px';
+    joystickContainer.style.bottom = '10px';
     joystickContainer.style.right = '20px';
     joystickContainer.style.width = '100px';
     joystickContainer.style.height = '100px';
