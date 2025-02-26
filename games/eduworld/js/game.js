@@ -143,10 +143,28 @@ function addBank() {
     }
 }
 
-
 function addHouse() {
-    createBuilding(10, 7, 10, 0x964B00, { x: 0, y: 3.5, z: -20 }, "House");
+    createBuilding(10, 7, 10, "textures/wood_0066_normal_directx_1k.png", { x: 0, y: 3.5, z: -20 }, "House");
+    
+    // Add Door (Brown Color, No Texture)
+    let door = new THREE.Mesh(
+        new THREE.BoxGeometry(2.5, 4, 0.2),
+        new THREE.MeshStandardMaterial({ color: 0x8B4513 })
+    );
+    door.position.set(0, 2, -14.9);
+    scene.add(door);
+    
+    // Add Windows (Brown Color, No Texture)
+    for (let i = -3; i <= 3; i += 6) {
+        let windowMesh = new THREE.Mesh(
+            new THREE.BoxGeometry(2, 2, 0.2),
+            new THREE.MeshStandardMaterial({ color: 0x8B4513 })
+        );
+        windowMesh.position.set(i, 4, -14.9);
+        scene.add(windowMesh);
+    }
 }
+
 
 function addChairs() {
     for (let i = -5; i <= 5; i += 2) {
