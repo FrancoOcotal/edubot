@@ -17,7 +17,26 @@ function init() {
         document.getElementById('startButton').style.display = 'none';
     });
 	
-	function setupMotionControls() {
+	
+
+    scene.add(controls.getObject());
+    addLighting();
+    addFloor();
+    addSchool();
+    addBank();
+    addHouse();
+    addChairs();
+    
+    camera.position.y = 2;
+    setupControls();
+    setupTouchControls();
+	setupMotionControls(); 
+    animate();
+}
+
+
+
+function setupMotionControls() {
     if (window.DeviceOrientationEvent) {
         window.addEventListener("deviceorientation", (event) => {
             let alpha = event.alpha ? THREE.MathUtils.degToRad(event.alpha) : 0; // Yaw (left/right)
@@ -34,19 +53,6 @@ function init() {
 }
 
 
-    scene.add(controls.getObject());
-    addLighting();
-    addFloor();
-    addSchool();
-    addBank();
-    addHouse();
-    addChairs();
-    
-    camera.position.y = 2;
-    setupControls();
-    setupTouchControls();
-    animate();
-}
 
 function addLighting() {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
