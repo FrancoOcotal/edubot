@@ -1,5 +1,6 @@
 let scene, camera, renderer, controls;
 let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+let lookLeft = false, lookRight = false, lookUp = false, lookDown = false;
 const speed = 0.1;
 let collidableObjects = [];
 const textureLoader = new THREE.TextureLoader();
@@ -444,6 +445,11 @@ function animate() {
     if (!checkCollisions(newPosition)) {
         controls.getObject().position.copy(newPosition);
     }
+	
+	if (lookLeft) camera.rotation.y += 0.02;
+    if (lookRight) camera.rotation.y -= 0.02;
+    if (lookUp) camera.rotation.x += 0.02;
+    if (lookDown) camera.rotation.x -= 0.02;
 
     renderer.render(scene, camera);
 }
