@@ -135,7 +135,7 @@ function addChairs() {
             new THREE.BoxGeometry(1, 1, 1),
             new THREE.MeshStandardMaterial({ color: 0xAAAAAA })
         );
-        chair.position.set(i, 0.5, 10);
+        chair.position.set(i, 0.7, 40);
         scene.add(chair);
         collidableObjects.push(chair);
     }
@@ -181,102 +181,6 @@ function addTrees() {
         }
         
         treeCount++;
-    }
-}
-
-function addCars() {
-    let carBodyMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-    let wheelMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
-    let doorMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
-    let windowMaterial = new THREE.MeshStandardMaterial({ color: 0x333333, transparent: true, opacity: 0.7 });
-
-    // Car Body
-    let carBody = new THREE.Mesh(
-        new THREE.BoxGeometry(6, 2, 3),
-        carBodyMaterial
-    );
-    carBody.position.set(-10, 1, 10);
-    carBody.name = "Car";
-    scene.add(carBody);
-    collidableObjects.push(carBody);
-
-    // Car Roof
-    let carRoof = new THREE.Mesh(
-        new THREE.BoxGeometry(4, 1.5, 2.8),
-        carBodyMaterial
-    );
-    carRoof.position.set(-10, 2.5, 10);
-    scene.add(carRoof);
-
-    // Wheels (4 Bigger, Round Wheels)
-    let wheelPositions = [
-        { x: -12, y: 0.5, z: 8.5 },  // Front Left
-        { x: -12, y: 0.5, z: 11.5 }, // Rear Left
-        { x: -8, y: 0.5, z: 8.5 },   // Front Right
-        { x: -8, y: 0.5, z: 11.5 }   // Rear Right
-    ];
-    
-    wheelPositions.forEach(pos => {
-        let wheel = new THREE.Mesh(
-            new THREE.CylinderGeometry(1, 1, 0.5, 24), // Bigger wheels (radius 1)
-            wheelMaterial
-        );
-        wheel.rotation.x = Math.PI / 2;
-        wheel.position.set(pos.x, pos.y, pos.z);
-        scene.add(wheel);
-    });
-
-    // Doors (One on each side)
-    let leftDoor = new THREE.Mesh(
-        new THREE.BoxGeometry(0.1, 1.5, 2),
-        doorMaterial
-    );
-    leftDoor.position.set(-13, 1.5, 10);
-    scene.add(leftDoor);
-
-    let rightDoor = new THREE.Mesh(
-        new THREE.BoxGeometry(0.1, 1.5, 2),
-        doorMaterial
-    );
-    rightDoor.position.set(-7, 1.5, 10);
-    scene.add(rightDoor);
-
-    // Windows (Front & Side)
-    let frontWindow = new THREE.Mesh(
-        new THREE.BoxGeometry(2, 1, 0.1),
-        windowMaterial
-    );
-    frontWindow.position.set(-10, 3, 11.6);
-    scene.add(frontWindow);
-
-    let sideWindow = new THREE.Mesh(
-        new THREE.BoxGeometry(0.1, 1, 2),
-        windowMaterial
-    );
-    sideWindow.position.set(-8, 3, 10);
-    scene.add(sideWindow);
-}
-
-
-
-
-
-
-function addNPCs() {
-    for (let i = -10; i <= 10; i += 10) {
-        let npcBody = new THREE.Mesh(
-            new THREE.BoxGeometry(1, 2, 1),
-            new THREE.MeshStandardMaterial({ color: 0xffff00 })
-        );
-        npcBody.position.set(i, 1, -10);
-        scene.add(npcBody);
-
-        let npcHead = new THREE.Mesh(
-            new THREE.SphereGeometry(0.7, 8, 8),
-            new THREE.MeshStandardMaterial({ color: 0xffcc99 })
-        );
-        npcHead.position.set(i, 2.5, -10);
-        scene.add(npcHead);
     }
 }
 
@@ -359,4 +263,136 @@ function addGiraffe() {
     tail.position.set(10, 3, -18.5);
     tail.rotation.x = Math.PI / 8;
     scene.add(tail);
+}
+
+
+let npcs = [];
+
+function addNPCs() {
+    for (let i = -10; i <= 10; i += 10) {
+        let npcGroup = new THREE.Group();
+
+        // Cuerpo
+        let body = new THREE.Mesh(
+            new THREE.BoxGeometry(1, 2, 1),
+            new THREE.MeshStandardMaterial({ color: 0xffff00 })
+        );
+        body.position.set(0, 1, 0);
+        npcGroup.add(body);
+
+        // Cabeza
+        let head = new THREE.Mesh(
+            new THREE.SphereGeometry(0.7, 12, 12),
+            new THREE.MeshStandardMaterial({ color: 0xffcc99 })
+        );
+        head.position.set(0, 2.5, 0);
+        npcGroup.add(head);
+
+        // Brazos
+        let armMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00 });
+        let leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.5, 0.5), armMaterial);
+        let rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.5, 0.5), armMaterial);
+        leftArm.position.set(-0.8, 1.5, 0);
+        rightArm.position.set(0.8, 1.5, 0);
+        npcGroup.add(leftArm);
+        npcGroup.add(rightArm);
+
+        // Piernas
+        let legMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+        let leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.5, 0.5), legMaterial);
+        let rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.5, 0.5), legMaterial);
+        leftLeg.position.set(-0.3, 0, 0);
+        rightLeg.position.set(0.3, 0, 0);
+        npcGroup.add(leftLeg);
+        npcGroup.add(rightLeg);
+
+        // Posicionar al NPC en la escena
+        npcGroup.position.set(i, 1, -10);
+        npcGroup.name = "NPC";
+        scene.add(npcGroup);
+        npcs.push({ mesh: npcGroup, direction: Math.random() * Math.PI * 2 });
+        collidableObjects.push(npcGroup);
+    }
+}
+
+let cars = [];
+
+function addCars() {
+    let carGroup = new THREE.Group();
+
+    let carBodyMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+    let wheelMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
+    let doorMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
+    let windowMaterial = new THREE.MeshStandardMaterial({ color: 0x333333, transparent: true, opacity: 0.7 });
+
+    // Car Body
+    let carBody = new THREE.Mesh(
+        new THREE.BoxGeometry(6, 2, 3),
+        carBodyMaterial
+    );
+    carBody.position.set(0, 1, 0);
+    carGroup.add(carBody);
+
+    // Car Roof
+    let carRoof = new THREE.Mesh(
+        new THREE.BoxGeometry(4, 1.5, 2.8),
+        carBodyMaterial
+    );
+    carRoof.position.set(0, 2.5, 0);
+    carGroup.add(carRoof);
+
+    // Wheels
+    let wheelPositions = [
+        { x: -2.5, y: -0.5, z: -1.3 },
+        { x: -2.5, y: -0.5, z: 1.3 },
+        { x: 2.5, y: -0.5, z: -1.3 },
+        { x: 2.5, y: -0.5, z: 1.3 }
+    ];
+
+    wheelPositions.forEach(pos => {
+        let wheel = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.7, 0.7, 0.5, 24),
+            wheelMaterial
+        );
+        wheel.rotation.z = Math.PI / 2;
+        wheel.position.set(pos.x, pos.y, pos.z);
+        carGroup.add(wheel);
+    });
+
+    // Doors
+    let leftDoor = new THREE.Mesh(
+        new THREE.BoxGeometry(0.1, 1.5, 2),
+        doorMaterial
+    );
+    leftDoor.position.set(-3, 1.5, 0);
+    carGroup.add(leftDoor);
+
+    let rightDoor = new THREE.Mesh(
+        new THREE.BoxGeometry(0.1, 1.5, 2),
+        doorMaterial
+    );
+    rightDoor.position.set(3, 1.5, 0);
+    carGroup.add(rightDoor);
+
+    // Windows
+    let frontWindow = new THREE.Mesh(
+        new THREE.BoxGeometry(2, 1, 0.1),
+        windowMaterial
+    );
+    frontWindow.position.set(0, 3, 1.6);
+    carGroup.add(frontWindow);
+
+    let sideWindow = new THREE.Mesh(
+        new THREE.BoxGeometry(0.1, 1, 2),
+        windowMaterial
+    );
+    sideWindow.position.set(2, 3, 0);
+    carGroup.add(sideWindow);
+
+    // Set initial position
+    carGroup.position.set(-10, 1, 40); // Nueva posición del auto
+    carGroup.name = "Car";
+    scene.add(carGroup);
+    collidableObjects.push(carGroup);
+    cars.push({ mesh: carGroup, direction: Math.random() * Math.PI * 2 });
 }
