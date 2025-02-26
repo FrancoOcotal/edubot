@@ -185,29 +185,16 @@ function addTrees() {
 }
 
 function addCars() {
-    for (let i = -20; i <= 20; i += 20) {
-        let carBody = new THREE.Mesh(
-            new THREE.BoxGeometry(6, 2, 3),
-            new THREE.MeshStandardMaterial({ color: 0xff0000 })
-        );
-        carBody.position.set(i, 1, 10);
-        scene.add(carBody);
-
-        let carWheels = [];
-        for (let j = -2; j <= 2; j += 4) {
-            for (let k = -1; k <= 1; k += 2) {
-                let wheel = new THREE.Mesh(
-                    new THREE.CylinderGeometry(0.5, 0.5, 1, 12),
-                    new THREE.MeshStandardMaterial({ color: 0x000000 })
-                );
-                wheel.rotation.z = Math.PI / 2;
-                wheel.position.set(i + j, 0.5, 10 + k);
-                carWheels.push(wheel);
-                scene.add(wheel);
-            }
-        }
-    }
+    let car = new THREE.Mesh(
+        new THREE.BoxGeometry(6, 2, 3),
+        new THREE.MeshStandardMaterial({ color: 0xff0000 })
+    );
+    car.position.set(-10, 1, 10);
+    car.name = "Car";  // ✅ Assign a name to detect collisions
+    scene.add(car);
+    collidableObjects.push(car); // ✅ Add to collidable objects
 }
+
 
 function addNPCs() {
     for (let i = -10; i <= 10; i += 10) {
