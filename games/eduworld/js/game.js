@@ -2,11 +2,12 @@ let scene, camera, renderer, controls;
 let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
 const speed = 0.1;
 let collidableObjects = [];
+const textureLoader = new THREE.TextureLoader();
 
 function init() {
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    renderer = new THREE.WebGLRenderer();
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+    renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     
@@ -17,31 +18,46 @@ function init() {
     });
 
     scene.add(controls.getObject());
+    addLighting();
     addFloor();
     addSchool();
     addBank();
     addHouse();
     addChairs();
     
-    camera.position.y = 1.5;
+    camera.position.y = 2;
     setupControls();
     setupTouchControls();
     animate();
 }
 
+function addLighting() {
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+    
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+    sunLight.position.set(10, 50, 10);
+    scene.add(sunLight);
+}
+
 function addFloor() {
+    const groundTexture = textureLoader.load('textures/PavingStones138.png');
+    groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+    groundTexture.repeat.set(10, 10);
+
     let floor = new THREE.Mesh(
-        new THREE.BoxGeometry(50, 1, 50),
-        new THREE.MeshBasicMaterial({ color: 0x8B4513 })
+        new THREE.BoxGeometry(100, 1, 100),
+        new THREE.MeshStandardMaterial({ map: groundTexture })
     );
     floor.position.y = -0.5;
     scene.add(floor);
 }
 
 function createBuilding(width, height, depth, color, position, label) {
+    let buildingMaterial = new THREE.MeshStandardMaterial({ color: color, roughness: 0.7 });
     let building = new THREE.Mesh(
         new THREE.BoxGeometry(width, height, depth),
-        new THREE.MeshBasicMaterial({ color: color })
+        buildingMaterial
     );
     building.position.set(position.x, position.y, position.z);
     scene.add(building);
@@ -49,24 +65,24 @@ function createBuilding(width, height, depth, color, position, label) {
 }
 
 function addSchool() {
-    createBuilding(10, 7, 10, 0x5555ff, { x: -15, y: 3.5, z: -20 }, "School");
+    createBuilding(15, 10, 15, 0x5555ff, { x: -25, y: 5, z: -40 }, "School");
 }
 
 function addBank() {
-    createBuilding(8, 6, 10, 0x228B22, { x: 15, y: 3, z: -20 }, "Bank");
+    createBuilding(12, 8, 12, 0x228B22, { x: 25, y: 4, z: -40 }, "Bank");
 }
 
 function addHouse() {
-    createBuilding(7, 5, 7, 0x964B00, { x: 0, y: 2.5, z: -10 }, "House");
+    createBuilding(10, 7, 10, 0x964B00, { x: 0, y: 3.5, z: -20 }, "House");
 }
 
 function addChairs() {
-    for (let i = -2; i <= 2; i += 2) {
+    for (let i = -5; i <= 5; i += 2) {
         let chair = new THREE.Mesh(
             new THREE.BoxGeometry(1, 1, 1),
-            new THREE.MeshBasicMaterial({ color: 0xAAAAAA })
+            new THREE.MeshStandardMaterial({ color: 0xAAAAAA })
         );
-        chair.position.set(i, 0.5, 5);
+        chair.position.set(i, 0.5, 10);
         scene.add(chair);
         collidableObjects.push(chair);
     }
@@ -75,40 +91,70 @@ function addChairs() {
 function checkCollisions(newPosition) {
     for (let obj of collidableObjects) {
         let distance = obj.position.distanceTo(newPosition);
-        if (distance < 2) return true; 
+        if (distance < 3) return true; 
     }
     return false;
 }
 
 function setupControls() {
     document.addEventListener('keydown', (event) => {
-        switch (event.key.toLowerCase()) {
-            case 'f': moveForward = true; break;
-            case 'b': moveBackward = true; break;
-            case 'l': moveLeft = true; break;
-            case 'r': moveRight = true; break;
+        switch (event.key) {
+            case 'ArrowUp': moveForward = true; break;
+            case 'ArrowDown': moveBackward = true; break;
+            case 'ArrowLeft': moveLeft = true; break;
+            case 'ArrowRight': moveRight = true; break;
         }
     });
 
     document.addEventListener('keyup', (event) => {
-        switch (event.key.toLowerCase()) {
-            case 'f': moveForward = false; break;
-            case 'b': moveBackward = false; break;
-            case 'l': moveLeft = false; break;
-            case 'r': moveRight = false; break;
+        switch (event.key) {
+            case 'ArrowUp': moveForward = false; break;
+            case 'ArrowDown': moveBackward = false; break;
+            case 'ArrowLeft': moveLeft = false; break;
+            case 'ArrowRight': moveRight = false; break;
         }
     });
 }
 
 function setupTouchControls() {
-    document.getElementById('moveForward').addEventListener('touchstart', () => moveForward = true);
-    document.getElementById('moveForward').addEventListener('touchend', () => moveForward = false);
-    document.getElementById('moveBackward').addEventListener('touchstart', () => moveBackward = true);
-    document.getElementById('moveBackward').addEventListener('touchend', () => moveBackward = false);
-    document.getElementById('moveLeft').addEventListener('touchstart', () => moveLeft = true);
-    document.getElementById('moveLeft').addEventListener('touchend', () => moveLeft = false);
-    document.getElementById('moveRight').addEventListener('touchstart', () => moveRight = true);
-    document.getElementById('moveRight').addEventListener('touchend', () => moveRight = false);
+    const controlsContainer = document.createElement('div');
+    controlsContainer.style.position = 'absolute';
+    controlsContainer.style.bottom = '20px';
+    controlsContainer.style.left = '50%';
+    controlsContainer.style.transform = 'translateX(-50%)';
+    controlsContainer.style.display = 'grid';
+    controlsContainer.style.gridTemplateColumns = '50px 50px 50px';
+    controlsContainer.style.gridTemplateRows = '50px 50px';
+    controlsContainer.style.gap = '10px';
+
+    document.body.appendChild(controlsContainer);
+
+    function createButton(emoji, actionStart, actionEnd) {
+        let button = document.createElement('button');
+        button.innerHTML = emoji;
+        button.style.width = '50px';
+        button.style.height = '50px';
+        button.style.fontSize = '24px';
+        button.style.border = 'none';
+        button.style.borderRadius = '50%';
+        button.style.background = 'rgba(0, 0, 0, 0.5)';
+        button.style.color = 'white';
+        button.addEventListener('touchstart', actionStart);
+        button.addEventListener('touchend', actionEnd);
+        return button;
+    }
+
+    const upButton = createButton('⬆', () => moveForward = true, () => moveForward = false);
+    const leftButton = createButton('⬅', () => moveLeft = true, () => moveLeft = false);
+    const rightButton = createButton('➡', () => moveRight = true, () => moveRight = false);
+    const downButton = createButton('⬇', () => moveBackward = true, () => moveBackward = false);
+
+    controlsContainer.appendChild(document.createElement('span'));
+    controlsContainer.appendChild(upButton);
+    controlsContainer.appendChild(document.createElement('span'));
+    controlsContainer.appendChild(leftButton);
+    controlsContainer.appendChild(downButton);
+    controlsContainer.appendChild(rightButton);
 }
 
 function animate() {
