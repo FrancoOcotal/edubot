@@ -16,6 +16,23 @@ function init() {
         controls.lock();
         document.getElementById('startButton').style.display = 'none';
     });
+	
+	function setupMotionControls() {
+    if (window.DeviceOrientationEvent) {
+        window.addEventListener("deviceorientation", (event) => {
+            let alpha = event.alpha ? THREE.MathUtils.degToRad(event.alpha) : 0; // Yaw (left/right)
+            let beta = event.beta ? THREE.MathUtils.degToRad(event.beta) : 0;   // Pitch (up/down)
+            let gamma = event.gamma ? THREE.MathUtils.degToRad(event.gamma) : 0; // Roll (tilt)
+
+            // Update camera rotation
+            camera.rotation.y = -alpha;
+            camera.rotation.x = beta * 0.5; // Reduce sensitivity
+        }, true);
+    } else {
+        console.warn("Device Motion not supported");
+    }
+}
+
 
     scene.add(controls.getObject());
     addLighting();
