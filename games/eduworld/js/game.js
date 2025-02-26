@@ -60,7 +60,7 @@ function addLighting() {
 }
 
 function addFloor() {
-    const groundTexture = textureLoader.load('textures/PavingStones138.png');
+    const groundTexture = textureLoader.load('textures/ground_0040_color_1k.jpg');
     groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
     groundTexture.repeat.set(10, 10);
 
@@ -72,20 +72,48 @@ function addFloor() {
     scene.add(floor);
 }
 
-function createBuilding(width, height, depth, color, position, label) {
-    let buildingMaterial = new THREE.MeshStandardMaterial({ color: color, roughness: 0.7 });
+function createBuilding(width, height, depth, texturePath, position, label) {
+    const texture = textureLoader.load(texturePath);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(1, 1); // Adjust tiling if needed
+
+    let buildingMaterial = new THREE.MeshStandardMaterial({ map: texture });
     let building = new THREE.Mesh(
         new THREE.BoxGeometry(width, height, depth),
         buildingMaterial
     );
+
     building.position.set(position.x, position.y, position.z);
     scene.add(building);
     collidableObjects.push(building);
-	 addBuildingLabel(label, position.x, position.y + height / 2 + 1, position.z);
+
+    addBuildingLabel(label, position.x, position.y + height / 2 + 1, position.z);
 }
 
+
 function addSchool() {
-    createBuilding(15, 10, 15, 0x5555ff, { x: -25, y: 5, z: -40 }, "School");
+    createBuilding(15, 10, 15, "textures/tiles_0125_color_1k.jpg", { x: -25, y: 5, z: -40 }, "School");
+    
+    // Add Door
+    let doorTexture = textureLoader.load("textures/wood_0066_color_1k.jpg");
+    let door = new THREE.Mesh(
+        new THREE.BoxGeometry(3, 5, 0.2),
+        new THREE.MeshStandardMaterial({ map: doorTexture })
+    );
+    door.position.set(-25, 2.5, -32.6);
+    scene.add(door);
+    
+    // Add Windows
+    let windowTexture = textureLoader.load("textures/window.png");
+    for (let i = -5; i <= 5; i += 10) {
+        let windowMesh = new THREE.Mesh(
+            new THREE.BoxGeometry(3, 3, 0.2),
+            new THREE.MeshStandardMaterial({ map: windowTexture, transparent: true, opacity: 0.9 })
+        );
+        windowMesh.position.set(-25 + i, 5, -32.6);
+        scene.add(windowMesh);
+    }
 }
 
 function addBank() {
