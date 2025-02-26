@@ -16,8 +16,6 @@ function init() {
         controls.lock();
         document.getElementById('startButton').style.display = 'none';
     });
-	
-	
 
     scene.add(controls.getObject());
     addLighting();
@@ -30,29 +28,9 @@ function init() {
     camera.position.y = 2;
     setupControls();
     setupTouchControls();
-	setupMotionControls(); 
+    setupMotionControls();
     animate();
 }
-
-
-
-function setupMotionControls() {
-    if (window.DeviceOrientationEvent) {
-        window.addEventListener("deviceorientation", (event) => {
-            let alpha = event.alpha ? THREE.MathUtils.degToRad(event.alpha) : 0; // Yaw (left/right)
-            let beta = event.beta ? THREE.MathUtils.degToRad(event.beta) : 0;   // Pitch (up/down)
-            let gamma = event.gamma ? THREE.MathUtils.degToRad(event.gamma) : 0; // Roll (tilt)
-
-            // Update camera rotation
-            camera.rotation.y = -alpha;
-            camera.rotation.x = beta * 0.5; // Reduce sensitivity
-        }, true);
-    } else {
-        console.warn("Device Motion not supported");
-    }
-}
-
-
 
 function addLighting() {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -139,6 +117,43 @@ function setupControls() {
     });
 }
 
+function setupMotionControls() {
+    if (window.DeviceOrientationEvent) {
+        window.addEventListener("deviceorientation", (event) => {
+            let alpha = event.alpha ? THREE.MathUtils.degToRad(event.alpha) : 0;
+            let beta = event.beta ? THREE.MathUtils.degToRad(event.beta) : 0;
+            let gamma = event.gamma ? THREE.MathUtils.degToRad(event.gamma) : 0;
+
+            camera.rotation.y = -alpha;
+            camera.rotation.x = beta * 0.5;
+        }, true);
+    } else {
+        console.warn("Device Motion not supported");
+    }
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+    let newPosition = controls.getObject().position.clone();
+    if (moveForward) newPosition.z -= speed;
+    if (moveBackward) newPosition.z += speed;
+    if (moveLeft) newPosition.x -= speed;
+    if (moveRight) newPosition.x += speed;
+
+    if (!checkCollisions(newPosition)) {
+        controls.getObject().position.copy(newPosition);
+    }
+
+    renderer.render(scene, camera);
+}
+
+window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+});
+
+
 function setupTouchControls() {
     const controlsContainer = document.createElement('div');
     controlsContainer.style.position = 'absolute';
@@ -179,26 +194,5 @@ function setupTouchControls() {
     controlsContainer.appendChild(downButton);
     controlsContainer.appendChild(rightButton);
 }
-
-function animate() {
-    requestAnimationFrame(animate);
-    let newPosition = controls.getObject().position.clone();
-    if (moveForward) newPosition.z -= speed;
-    if (moveBackward) newPosition.z += speed;
-    if (moveLeft) newPosition.x -= speed;
-    if (moveRight) newPosition.x += speed;
-
-    if (!checkCollisions(newPosition)) {
-        controls.getObject().position.copy(newPosition);
-    }
-
-    renderer.render(scene, camera);
-}
-
-window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-});
 
 init();
