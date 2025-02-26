@@ -34,6 +34,22 @@ function init() {
     animate();
 }
 
+
+function addBuildingLabel(text, x, y, z) {
+    const fontLoader = new THREE.FontLoader();
+    fontLoader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function(font) {
+        const textGeometry = new THREE.TextGeometry(text, {
+            font: font,
+            size: 2,
+            height: 0.5
+        });
+        const textMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+        textMesh.position.set(x - text.length, y, z);
+        scene.add(textMesh);
+    });
+}
+
 function addLighting() {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
@@ -65,6 +81,7 @@ function createBuilding(width, height, depth, color, position, label) {
     building.position.set(position.x, position.y, position.z);
     scene.add(building);
     collidableObjects.push(building);
+	 addBuildingLabel(label, position.x, position.y + height / 2 + 1, position.z);
 }
 
 function addSchool() {
