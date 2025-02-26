@@ -31,6 +31,7 @@ function init() {
     
     camera.position.y = 2;
     setupControls();
+	setupJoystickControls();
     setupTouchControls();
     animate();
 }
@@ -372,7 +373,65 @@ function setupTouchControls() {
     controlsContainer.appendChild(leftButton);
     controlsContainer.appendChild(downButton);
     controlsContainer.appendChild(rightButton);
+	
+	
+	
+	
 }
+
+
+
+function setupJoystickControls() {
+    const joystickContainer = document.createElement('div');
+    joystickContainer.style.position = 'absolute';
+    joystickContainer.style.bottom = '20px';
+    joystickContainer.style.right = '20px';
+    joystickContainer.style.width = '100px';
+    joystickContainer.style.height = '100px';
+    joystickContainer.style.background = 'rgba(0, 0, 0, 0.5)';
+    joystickContainer.style.borderRadius = '50%';
+    joystickContainer.style.touchAction = 'none';
+    document.body.appendChild(joystickContainer);
+    
+    let joystick = document.createElement('div');
+    joystick.style.position = 'absolute';
+    joystick.style.top = '50%';
+    joystick.style.left = '50%';
+    joystick.style.transform = 'translate(-50%, -50%)';
+    joystick.style.width = '40px';
+    joystick.style.height = '40px';
+    joystick.style.background = 'rgba(255, 255, 255, 0.7)';
+    joystick.style.borderRadius = '50%';
+    joystickContainer.appendChild(joystick);
+    
+    let active = false;
+    let startX = 0, startY = 0;
+    
+    joystickContainer.addEventListener('touchstart', (event) => {
+        active = true;
+        let touch = event.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+    });
+    
+    joystickContainer.addEventListener('touchmove', (event) => {
+        if (!active) return;
+        let touch = event.touches[0];
+        let deltaX = touch.clientX - startX;
+        let deltaY = touch.clientY - startY;
+        
+        lookLeft = deltaX < -20;
+        lookRight = deltaX > 20;
+        lookUp = deltaY < -20;
+        lookDown = deltaY > 20;
+    });
+    
+    joystickContainer.addEventListener('touchend', () => {
+        active = false;
+        lookLeft = lookRight = lookUp = lookDown = false;
+    });
+}
+
 
 function animate() {
     requestAnimationFrame(animate);
