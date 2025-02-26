@@ -117,8 +117,29 @@ function addSchool() {
 }
 
 function addBank() {
-    createBuilding(12, 8, 12, 0x228B22, { x: 25, y: 4, z: -40 }, "Bank");
+    createBuilding(12, 8, 12, "textures/wood_0066_ao_1k.jpg", { x: 25, y: 4, z: -40 }, "Bank");
+    
+    // Add Door
+    let doorTexture = textureLoader.load("textures/wood_0066_color_1k.jpg");
+    let door = new THREE.Mesh(
+        new THREE.BoxGeometry(4, 6, 0.2),
+        new THREE.MeshStandardMaterial({ map: doorTexture })
+    );
+    door.position.set(25, 3, -34);
+    scene.add(door);
+    
+    // Add Large Windows
+    let windowTexture = textureLoader.load("textures/bank_window.png");
+    for (let i = -4; i <= 4; i += 8) {
+        let windowMesh = new THREE.Mesh(
+            new THREE.BoxGeometry(4, 4, 0.2),
+            new THREE.MeshStandardMaterial({ map: windowTexture, transparent: true, opacity: 0.9 })
+        );
+        windowMesh.position.set(25 + i, 5, -34);
+        scene.add(windowMesh);
+    }
 }
+
 
 function addHouse() {
     createBuilding(10, 7, 10, 0x964B00, { x: 0, y: 3.5, z: -20 }, "House");
