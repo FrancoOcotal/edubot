@@ -34,6 +34,8 @@ function init() {
     addCars();
     addNPCs();
     addGiraffe();
+    addScooter();addSkateboard();
+	addAirplane();
 	
     addChurch();
 	addSkySphere();
