@@ -25,6 +25,7 @@ function init() {
     // Call functions from objetos.js
     addLighting();
     addFloor();
+	addMountains();
     addSchool();
     addBank();
     addHouse();
@@ -33,7 +34,9 @@ function init() {
     addCars();
     addNPCs();
     addGiraffe();
-    
+	
+    addChurch();
+	addSkySphere();
     camera.position.y = 2;
     setupControls();
     setupJoystickControls();
@@ -44,38 +47,18 @@ function init() {
 
 function checkCollisions(newPosition) {
     for (let obj of collidableObjects) {
-        let distance = obj.position.distanceTo(newPosition);
-        if (distance < 3) { 
-            switch (obj.name) {
-                case "Giraffe":
-                    startMiniGame("What is this animal?", "Giraffe", ["Elephant", "Dog", "Ostrich"]);
-                    break;
-                case "Bank":
-                    startMiniGame("What do people do at a bank?", "Save Money", ["Buy Clothes", "Cook Food", "Play Soccer"]);
-                    break;
-                case "School":
-                    startMiniGame("What do students do at school?", "Learn", ["Sleep", "Drive Cars", "Eat"]);
-                    break;
-                case "House":
-                    startMiniGame("Where do people live?", "House", ["Airport", "Mall", "Factory"]);
-                    break;
-                case "Tree":
-                    startMiniGame("What do trees produce?", "Oxygen", ["Plastic", "Metal", "Water"]);
-                    break;
-                case "Car":
-                    startMiniGame("Which object moves fast on the road?", "Car", ["Bicycle", "Boat", "Airplane"]);
-                    break;
-                default:
-                    console.log("Collided with: " + obj.name);
-            }
-            return true; // Prevent movement if collision detected
+        if (!obj.geometry || !obj.position) continue; // Evita errores si el objeto no tiene geometría
+
+        let boundingBox = new THREE.Box3().setFromObject(obj); // Obtiene el área del objeto
+        let playerBoundingBox = new THREE.Box3().setFromCenterAndSize(newPosition, new THREE.Vector3(1, 2, 1)); // Caja del jugador
+
+        if (boundingBox.intersectsBox(playerBoundingBox)) { 
+            console.log(`🚫 Bloqueado por: ${obj.name || "Objeto desconocido"}`);
+            return true; // Bloquea el movimiento
         }
     }
-    return false;
+    return false; // Permite el movimiento si no hay colisión
 }
-
-
-
 
 
 
@@ -155,6 +138,7 @@ function setupTouchControls() {
 
 
 
+
 function setupJoystickControls() {
     const joystickContainer = document.createElement('div');
     joystickContainer.style.position = 'absolute';
@@ -206,6 +190,32 @@ function setupJoystickControls() {
     });
 }
 
+function moveNPCs() {
+    npcs.forEach(npc => {
+        let speed = 0.02;
+        let newX = npc.mesh.position.x + Math.cos(npc.direction) * speed;
+        let newZ = npc.mesh.position.z + Math.sin(npc.direction) * speed;
+        let newPosition = new THREE.Vector3(newX, npc.mesh.position.y, newZ);
+
+        // Verificar colisiones
+        let collisionDetected = false;
+        for (let obj of collidableObjects) {
+            if (obj.position.distanceTo(newPosition) < 2) { // Si está muy cerca de un objeto
+                collisionDetected = true;
+                break;
+            }
+        }
+
+        // Si hay colisión, cambiar dirección; si no, moverse
+        if (collisionDetected) {
+            npc.direction = Math.random() * Math.PI * 2; // Cambia dirección aleatoria
+        } else {
+            npc.mesh.position.set(newX, npc.mesh.position.y, newZ);
+        }
+    });
+}
+
+
 
 function animate() {
     requestAnimationFrame(animate);
@@ -223,6 +233,8 @@ function animate() {
     if (lookRight) camera.rotation.y -= 0.02;
     if (lookUp) camera.rotation.x += 0.02;
     if (lookDown) camera.rotation.x -= 0.02;
+	
+	moveNPCs(); 
 
     renderer.render(scene, camera);
 }

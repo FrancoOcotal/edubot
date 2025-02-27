@@ -26,7 +26,7 @@ function addLighting() {
 }
 
 function addFloor() {
-    const groundTexture = textureLoader.load('textures/ground_0040_color_1k.jpg');
+    const groundTexture = textureLoader.load('textures/rocky_terrain_02_diff_1k.jpg');
     groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
     groundTexture.repeat.set(10, 10);
 
@@ -107,7 +107,7 @@ function addBank() {
 }
 
 function addHouse() {
-    createBuilding(10, 7, 10, "textures/wood_0066_normal_directx_1k.png", { x: 0, y: 3.5, z: -20 }, "House");
+    createBuilding(10, 7, 10, "textures/plaster_brick_pattern_ao_1k.jpg", { x: 0, y: 3.5, z: -20 }, "House");
     
     // Add Door (Brown Color, No Texture)
     let door = new THREE.Mesh(
@@ -395,4 +395,192 @@ function addCars() {
     scene.add(carGroup);
     collidableObjects.push(carGroup);
     cars.push({ mesh: carGroup, direction: Math.random() * Math.PI * 2 });
+}
+
+
+
+function addChurch() {
+    let churchGroup = new THREE.Group();
+
+    // Cargar Texturas
+    let wallTexture = textureLoader.load("textures/castle_brick_02_red_diff_1k.jpg");
+    let roofTexture = textureLoader.load("textures/roof_tiles_14_diff_1k.jpg");
+    let doorTexture = textureLoader.load("textures/worn_planks_diff_1k.jpg");
+    let windowTexture = textureLoader.load("textures/church_window.png");
+    let crossTexture = textureLoader.load("textures/rosewood_veneer1_diff_1k.jpg");
+
+    wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
+    roofTexture.wrapS = roofTexture.wrapT = THREE.RepeatWrapping;
+
+    let wallMaterial = new THREE.MeshStandardMaterial({ map: wallTexture });
+    let roofMaterial = new THREE.MeshStandardMaterial({ map: roofTexture });
+    let doorMaterial = new THREE.MeshStandardMaterial({ map: doorTexture });
+    let windowMaterial = new THREE.MeshStandardMaterial({ map: windowTexture, transparent: true, opacity: 0.8 });
+    let crossMaterial = new THREE.MeshStandardMaterial({ map: crossTexture });
+
+    // 🏛️ Edificio principal
+    let mainBuilding = new THREE.Mesh(
+        new THREE.BoxGeometry(10, 12, 8),
+        wallMaterial
+    );
+    mainBuilding.position.set(0, 6, 0);
+    churchGroup.add(mainBuilding);
+
+    // ⛪ Techo cónico
+    let roof = new THREE.Mesh(
+        new THREE.ConeGeometry(6, 4, 4),
+        roofMaterial
+    );
+    roof.rotation.y = Math.PI / 4;
+    roof.position.set(0, 14, 0);
+    churchGroup.add(roof);
+
+    // 🏰 Torre
+    let tower = new THREE.Mesh(
+        new THREE.BoxGeometry(4, 8, 4),
+        wallMaterial
+    );
+    tower.position.set(0, 18, 0);
+    churchGroup.add(tower);
+
+    // 🔺 Pequeño techo de la torre
+    let towerRoof = new THREE.Mesh(
+        new THREE.ConeGeometry(3, 4, 4),
+        roofMaterial
+    );
+    towerRoof.rotation.y = Math.PI / 4;
+    towerRoof.position.set(0, 22, 0);
+    churchGroup.add(towerRoof);
+
+    // 🚪 Puertas (Frontal y Trasera)
+    let doorFront = new THREE.Mesh(
+        new THREE.BoxGeometry(3, 5, 0.2),
+        doorMaterial
+    );
+    doorFront.position.set(0, 2.5, 4);
+    churchGroup.add(doorFront);
+
+    let doorBack = new THREE.Mesh(
+        new THREE.BoxGeometry(3, 5, 0.2),
+        doorMaterial
+    );
+    doorBack.position.set(0, 2.5, -4);
+    churchGroup.add(doorBack);
+
+    // 🪟 Ventanas corregidas
+    let windowPositions = [
+        { x: -3.5, y: 7, z: 4.05 },  // Ventana izquierda frontal
+        { x: 3.5, y: 7, z: 4.05 },   // Ventana derecha frontal
+        { x: -5, y: 7, z: 0 },       // Ventana lateral izquierda
+        { x: 5, y: 7, z: 0 }         // Ventana lateral derecha
+    ];
+
+    windowPositions.forEach(pos => {
+        let windowMesh = new THREE.Mesh(
+            new THREE.BoxGeometry(2, 3, 0.2),
+            windowMaterial
+        );
+        windowMesh.position.set(pos.x, pos.y, pos.z);
+        if (pos.z === 0) windowMesh.rotation.y = Math.PI / 2;
+        churchGroup.add(windowMesh);
+    });
+
+    // ✝️ Cruz en la torre
+    let verticalCross = new THREE.Mesh(
+        new THREE.BoxGeometry(0.6, 4, 0.6),
+        crossMaterial
+    );
+    verticalCross.position.set(0, 24, 0);
+    churchGroup.add(verticalCross);
+
+    let horizontalCross = new THREE.Mesh(
+        new THREE.BoxGeometry(3, 0.6, 0.6),
+        crossMaterial
+    );
+    horizontalCross.position.set(0, 24.5, 0);
+    churchGroup.add(horizontalCross);
+
+    // 📌 Ajustar la iglesia para que esté pegada al suelo
+    churchGroup.position.set(-20, 0, 30);
+
+    churchGroup.name = "Church";
+    scene.add(churchGroup);
+    collidableObjects.push(churchGroup);
+}
+
+
+
+
+function addSkySphere() {
+    const skyTexture = textureLoader.load("textures/bottom-view-sky-with-clouds.jpg");
+    skyTexture.wrapS = THREE.RepeatWrapping;
+    skyTexture.wrapT = THREE.RepeatWrapping;
+    
+    const skyMaterial = new THREE.MeshBasicMaterial({
+        map: skyTexture,
+        side: THREE.BackSide // Renderiza el interior de la esfera
+    });
+
+    const skySphere = new THREE.Mesh(
+        new THREE.SphereGeometry(500, 32, 32), // Tamaño grande para cubrir el mundo
+        skyMaterial
+    );
+
+    skySphere.position.set(0, 250, 0); // Asegura que esté sobre el mapa
+    scene.add(skySphere);
+}
+
+
+function addMountains() {
+    const mountainTexture = textureLoader.load("textures/mountain.jpg");
+    mountainTexture.wrapS = THREE.RepeatWrapping;
+    mountainTexture.wrapT = THREE.RepeatWrapping;
+
+    let mountainMaterial = new THREE.MeshStandardMaterial({ map: mountainTexture });
+
+    let mapSize = 100;  // 📌 Tamaño del mapa
+    let spacing = 20;   // 📏 Espaciado entre montañas
+    let minHeight = 30, maxHeight = 60; // 📊 Altura variable de las montañas
+    let minRadius = 15, maxRadius = 30; // 📊 Ancho variable de la base
+
+    let mountainPositions = [];
+
+    // 🔹 Montañas en los bordes del mapa (Norte, Sur, Este, Oeste)
+    for (let x = -mapSize / 2 - 20; x <= mapSize / 2 + 20; x += spacing) {
+        mountainPositions.push({ x: x, z: -mapSize / 2 - 20 }); // Sur
+        mountainPositions.push({ x: x, z: mapSize / 2 + 20 });  // Norte
+    }
+    for (let z = -mapSize / 2 - 20; z <= mapSize / 2 + 20; z += spacing) {
+        mountainPositions.push({ x: -mapSize / 2 - 20, z: z }); // Oeste
+        mountainPositions.push({ x: mapSize / 2 + 20, z: z });  // Este
+    }
+
+    // 🔹 Crear montañas irregulares con colisión
+    mountainPositions.forEach(pos => {
+        let height = Math.random() * (maxHeight - minHeight) + minHeight; // 🔥 Altura aleatoria
+        let radius = Math.random() * (maxRadius - minRadius) + minRadius; // 🔥 Ancho aleatorio
+
+        let mountain;
+        if (Math.random() > 0.5) {
+            // 🔺 Algunas montañas como conos (puntiagudas)
+            mountain = new THREE.Mesh(
+                new THREE.ConeGeometry(radius, height, 10),
+                mountainMaterial
+            );
+        } else {
+            // ⛰️ Otras montañas más redondeadas
+            mountain = new THREE.Mesh(
+                new THREE.SphereGeometry(radius, 10, 10),
+                mountainMaterial
+            );
+            mountain.scale.y = 1.5; // 📏 Aplastar ligeramente para más realismo
+        }
+
+        mountain.position.set(pos.x, height / 2 - 5, pos.z); // 📌 Ajustar altura
+        mountain.name = "Mountain"; // 🚨 Asegurar que el nombre es correcto
+        scene.add(mountain);
+        collidableObjects.push(mountain); // 🔥 Agregar a objetos colisionables
+    });
+
+    console.log("✅ Montañas irregulares añadidas:", collidableObjects.length);
 }
