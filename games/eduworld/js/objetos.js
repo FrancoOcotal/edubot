@@ -584,3 +584,312 @@ function addMountains() {
 
     console.log("✅ Montañas irregulares añadidas:", collidableObjects.length);
 }
+
+
+function addScooter() {
+    let scooterGroup = new THREE.Group();
+
+    // Cargar materiales con color azul
+    let frameMaterial = new THREE.MeshStandardMaterial({ color: 0x0044cc }); // Azul para la estructura
+    let deckMaterial = new THREE.MeshStandardMaterial({ color: 0x222222 });  // Base negra
+    let wheelMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 }); // Ruedas negras
+    let handleMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 }); // Manillar gris
+
+    // Base del scooter (Donde se para el usuario)
+    let base = new THREE.Mesh(
+        new THREE.BoxGeometry(4, 0.3, 1),
+        deckMaterial
+    );
+    base.position.set(0, 0.2, 0);
+    scooterGroup.add(base);
+
+    // Manillar vertical (Tubo azul) - Movido más a la izquierda
+    let handlebar = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.2, 0.2, 4, 10),
+        frameMaterial
+    );
+    handlebar.position.set(-1, 2.5, 0); // 🔄 MOVIDO MÁS CERCA DE LA LLANTA IZQUIERDA
+    scooterGroup.add(handlebar);
+
+    // Manillar horizontal (Agarraderas) - Girado correctamente
+    let handle = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.2, 0.2, 3, 10),
+        handleMaterial
+    );
+    handle.position.set(-1, 4.5, 0); // 🔄 Movido junto con el tubo vertical
+    handle.rotation.x = Math.PI / 2; // 🔄 Girado correctamente
+    scooterGroup.add(handle);
+
+    // Ruedas
+    let wheelPositions = [
+        { x: -1.5, z: 0 }, // 🔄 LLANTA IZQUIERDA (más cerca del manillar)
+        { x: 1.5, z: 0 }
+    ];
+
+    wheelPositions.forEach(pos => {
+        let wheel = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.5, 0.5, 0.5, 16),
+            wheelMaterial
+        );
+        wheel.rotation.z = Math.PI / 2; // 🔄 Girado correctamente las ruedas
+        wheel.position.set(pos.x, 0.1, pos.z);
+        scooterGroup.add(wheel);
+    });
+
+    // Posicionar el scooter en el mapa
+    scooterGroup.position.set(-5, 0, 10);
+    scooterGroup.name = "Scooter";
+    scene.add(scooterGroup);
+    collidableObjects.push(scooterGroup);
+}
+
+
+
+function addSkateboard() {
+    let skateboardGroup = new THREE.Group();
+
+    // Cargar Texturas
+    let deckMaterial = new THREE.MeshStandardMaterial({ color: 0x774422 }); // Madera
+    let wheelMaterial = new THREE.MeshStandardMaterial({ color: 0x111111 }); // Ruedas
+
+    // Tabla del skateboard
+    let deck = new THREE.Mesh(
+        new THREE.BoxGeometry(3, 0.2, 1),
+        deckMaterial
+    );
+    deck.position.set(0, 0.2, 0);
+    skateboardGroup.add(deck);
+
+    // Ruedas
+    let wheelPositions = [
+        { x: -1, z: -0.5 },
+        { x: -1, z: 0.5 },
+        { x: 1, z: -0.5 },
+        { x: 1, z: 0.5 }
+    ];
+
+    wheelPositions.forEach(pos => {
+        let wheel = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.3, 0.3, 0.3, 16),
+            wheelMaterial
+        );
+        wheel.rotation.x = Math.PI / 2;
+        wheel.position.set(pos.x, 0.1, pos.z);
+        skateboardGroup.add(wheel);
+    });
+
+    // Posicionar el monopatín en el mapa
+    skateboardGroup.position.set(5, 0, 10);
+    skateboardGroup.name = "Skateboard";
+    scene.add(skateboardGroup);
+    collidableObjects.push(skateboardGroup);
+}
+
+
+function addAirplane() {
+    let airplaneGroup = new THREE.Group();
+
+    // 🎨 Materiales
+    let bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 }); // Gris metálico para el fuselaje
+    let wingMaterial = new THREE.MeshStandardMaterial({ color: 0x0044cc }); // Azul para las alas
+    let propellerMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 }); // Negro para la hélice
+    let windowMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 }); // Ventanas
+
+    // ✈️ Fuselaje (Cuerpo del avión)
+    let fuselage = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.5, 1.5, 12, 32),
+        bodyMaterial
+    );
+    fuselage.rotation.z = Math.PI / 2; // Girar para que apunte hacia adelante
+    airplaneGroup.add(fuselage);
+
+    // 🛩 Alas mejoradas (Más anchas y rectangulares)
+    let leftWing = new THREE.Mesh(
+        new THREE.BoxGeometry(7, 0.5, 2),
+        wingMaterial
+    );
+    leftWing.position.set(0, 0, -2);
+    airplaneGroup.add(leftWing);
+
+    let rightWing = new THREE.Mesh(
+        new THREE.BoxGeometry(7, 0.5, 2),
+        wingMaterial
+    );
+    rightWing.position.set(0, 0, 2);
+    airplaneGroup.add(rightWing);
+
+    // 🏁 Cola del avión (Más estilizada)
+    let tailBase = new THREE.Mesh(
+        new THREE.BoxGeometry(2, 0.5, 1.5),
+        wingMaterial
+    );
+    tailBase.position.set(-6, 0, 0);
+    airplaneGroup.add(tailBase);
+
+    let tailVertical = new THREE.Mesh(
+        new THREE.BoxGeometry(0.5, 2, 1),
+        wingMaterial
+    );
+    tailVertical.position.set(-6.5, 1.5, 0);
+    airplaneGroup.add(tailVertical);
+
+    // 🌀 Hélice del avión (Más realista)
+    let propellerBase = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.3, 0.3, 1, 12),
+        propellerMaterial
+    );
+    propellerBase.position.set(6.2, 0, 0);
+    airplaneGroup.add(propellerBase);
+
+    let propellerBlade1 = new THREE.Mesh(
+        new THREE.BoxGeometry(0.2, 3, 0.1),
+        propellerMaterial
+    );
+    propellerBlade1.position.set(6.5, 0, 0);
+    airplaneGroup.add(propellerBlade1);
+
+    let propellerBlade2 = new THREE.Mesh(
+        new THREE.BoxGeometry(0.2, 3, 0.1),
+        propellerMaterial
+    );
+    propellerBlade2.position.set(6.5, 0, 0);
+    propellerBlade2.rotation.z = Math.PI / 2;
+    airplaneGroup.add(propellerBlade2);
+
+    // 🏠 Ventanas en la cabina
+    for (let i = -2; i <= 2; i++) {
+        let window = new THREE.Mesh(
+            new THREE.SphereGeometry(0.2, 8, 8),
+            windowMaterial
+        );
+        window.position.set(i * 1.5, 0.5, 1.2);
+        airplaneGroup.add(window);
+    }
+
+    // ✈️ Tren de aterrizaje (Ruedas)
+    let wheelPositions = [
+        { x: -2.5, y: -1.2, z: -1 },
+        { x: -2.5, y: -1.2, z: 1 },
+        { x: 2, y: -1.5, z: 0 }
+    ];
+
+    wheelPositions.forEach(pos => {
+        let wheel = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.3, 0.3, 0.2, 16),
+            propellerMaterial
+        );
+        wheel.rotation.x = Math.PI / 2;
+        wheel.position.set(pos.x, pos.y, pos.z);
+        airplaneGroup.add(wheel);
+    });
+
+    // 📌 Nueva ubicación: mucho más a la derecha
+    airplaneGroup.position.set(25, 1, 35);
+    airplaneGroup.name = "Airplane";
+    scene.add(airplaneGroup);
+    collidableObjects.push(airplaneGroup);
+}
+
+function addAirplane() {
+    let airplaneGroup = new THREE.Group();
+
+    // 🎨 Materiales
+    let bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 }); // Gris metálico para el fuselaje
+    let wingMaterial = new THREE.MeshStandardMaterial({ color: 0x0044cc }); // Azul para las alas
+    let propellerMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 }); // Negro para la hélice
+    let windowMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 }); // Ventanas
+
+    // ✈️ Fuselaje (Cuerpo del avión)
+    let fuselage = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.5, 1.5, 12, 32),
+        bodyMaterial
+    );
+    fuselage.rotation.z = Math.PI / 2; // Girar para que apunte hacia adelante
+    airplaneGroup.add(fuselage);
+
+    // 🛩 Alas mejoradas (Más anchas y rectangulares)
+    let leftWing = new THREE.Mesh(
+        new THREE.BoxGeometry(7, 0.5, 2),
+        wingMaterial
+    );
+    leftWing.position.set(0, 0, -2);
+    airplaneGroup.add(leftWing);
+
+    let rightWing = new THREE.Mesh(
+        new THREE.BoxGeometry(7, 0.5, 2),
+        wingMaterial
+    );
+    rightWing.position.set(0, 0, 2);
+    airplaneGroup.add(rightWing);
+
+    // 🏁 Cola del avión (Más estilizada)
+    let tailBase = new THREE.Mesh(
+        new THREE.BoxGeometry(2, 0.5, 1.5),
+        wingMaterial
+    );
+    tailBase.position.set(-6, 0, 0);
+    airplaneGroup.add(tailBase);
+
+    let tailVertical = new THREE.Mesh(
+        new THREE.BoxGeometry(0.5, 2, 1),
+        wingMaterial
+    );
+    tailVertical.position.set(-6.5, 1.5, 0);
+    airplaneGroup.add(tailVertical);
+
+    // 🌀 Hélice del avión (Más realista)
+    let propellerBase = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.3, 0.3, 1, 12),
+        propellerMaterial
+    );
+    propellerBase.position.set(6.2, 0, 0);
+    airplaneGroup.add(propellerBase);
+
+    let propellerBlade1 = new THREE.Mesh(
+        new THREE.BoxGeometry(0.2, 3, 0.1),
+        propellerMaterial
+    );
+    propellerBlade1.position.set(6.5, 0, 0);
+    airplaneGroup.add(propellerBlade1);
+
+    let propellerBlade2 = new THREE.Mesh(
+        new THREE.BoxGeometry(0.2, 3, 0.1),
+        propellerMaterial
+    );
+    propellerBlade2.position.set(6.5, 0, 0);
+    propellerBlade2.rotation.z = Math.PI / 2;
+    airplaneGroup.add(propellerBlade2);
+
+    // 🏠 Ventanas en la cabina
+    for (let i = -2; i <= 2; i++) {
+        let window = new THREE.Mesh(
+            new THREE.SphereGeometry(0.2, 8, 8),
+            windowMaterial
+        );
+        window.position.set(i * 1.5, 0.5, 1.2);
+        airplaneGroup.add(window);
+    }
+
+    // ✈️ Tren de aterrizaje (Ruedas)
+    let wheelPositions = [
+        { x: -2.5, y: -1.2, z: -1 },
+        { x: -2.5, y: -1.2, z: 1 },
+        { x: 2, y: -1.5, z: 0 }
+    ];
+
+    wheelPositions.forEach(pos => {
+        let wheel = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.3, 0.3, 0.2, 16),
+            propellerMaterial
+        );
+        wheel.rotation.x = Math.PI / 2;
+        wheel.position.set(pos.x, pos.y, pos.z);
+        airplaneGroup.add(wheel);
+    });
+
+    // 📌 Nueva ubicación: mucho más a la derecha
+    airplaneGroup.position.set(25, 1, 35);
+    airplaneGroup.name = "Airplane";
+    scene.add(airplaneGroup);
+    collidableObjects.push(airplaneGroup);
+}
